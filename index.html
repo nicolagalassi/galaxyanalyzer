@@ -103,10 +103,14 @@
 
             <div class="input-group">
                 <label for="allianceInput">Aggiungi Alleanza (Nome o Tag):</label>
-                <div style="display: flex; gap: 5px;">
+                <div style="display: flex; gap: 5px; align-items: stretch;">
                     <input type="text" id="allianceInput" list="allianceList" placeholder="Scrivi per cercare...">
                     <datalist id="allianceList"></datalist>
                     <button id="addAllianceBtn" class="btn-success">+</button>
+                    <label class="checkbox-container" style="font-size: 12px; padding: 0 10px; margin-left: 5px;">
+                        <input type="checkbox" id="splitAllianceColors">
+                        Separati
+                    </label>
                 </div>
             </div>
 
@@ -123,29 +127,6 @@
         </div>
 
         <div id="activeHighlights"></div>
-    </div>
-
-    <div class="panel" id="tacticalPanel" style="display: none; border: 1px solid #dc3545;">
-        <h2 style="margin-top: 0; color: #dc3545;">?? Modulo Analisi Tattica & Riposizionamento</h2>
-        <p style="color: #bbb; font-size: 14px; margin-bottom: 20px;">
-            Identifica le concentrazioni di pianeti dell'Alleanza Nemica e trova i migliori sistemi vuoti nelle vicinanze per piazzare colonie mobili. Suggerisce i giocatori alleati che non hanno basi in quei settori.
-        </p>
-        
-        <div class="controls">
-            <div class="input-group">
-                <label for="allyAllianceInput">La Nostra Alleanza:</label>
-                <input type="text" id="allyAllianceInput" list="allianceList" placeholder="Es. [Nostri]">
-            </div>
-            
-            <div class="input-group">
-                <label for="enemyAllianceInput">Alleanza Nemica (Bersaglio):</label>
-                <input type="text" id="enemyAllianceInput" list="allianceList" placeholder="Es. [Nemici]">
-            </div>
-
-            <button id="generateTacticalBtn" class="btn-danger">Analizza Strategia d'Attacco</button>
-        </div>
-
-        <div id="tacticalResults" style="margin-top: 20px;"></div>
     </div>
 
     <div class="chart-container">
@@ -188,6 +169,7 @@
         // --- STATO ATTIVO ---
         let activeLayers = []; 
         
+        // Tavolozza colori espansa per supportare alleanze con molti giocatori
         const colorPalette = [
             'rgba(255, 99, 132, 1)',   // Rosso
             'rgba(75, 192, 192, 1)',   // Verde acqua
@@ -196,7 +178,14 @@
             'rgba(255, 159, 64, 1)',   // Arancione
             'rgba(54, 235, 114, 1)',   // Verde brillante
             'rgba(235, 54, 184, 1)',   // Fucsia
-            'rgba(255, 255, 255, 1)'   // Bianco
+            'rgba(255, 255, 255, 1)',  // Bianco
+            'rgba(0, 123, 255, 1)',    // Blu acceso
+            'rgba(232, 62, 140, 1)',   // Rosa intenso
+            'rgba(32, 201, 151, 1)',   // Smeraldo
+            'rgba(253, 126, 20, 1)',   // Arancio scuro
+            'rgba(111, 66, 193, 1)',   // Indaco
+            'rgba(40, 167, 69, 1)',    // Verde scuro
+            'rgba(23, 162, 184, 1)'    // Ciano
         ];
         let colorIndex = 0;
 
@@ -216,8 +205,9 @@
         const allianceTableContainer = document.getElementById('allianceTableContainer');
         const freeSlotsPanel = document.getElementById('freeSlotsPanel');
         const freeSlotsContainer = document.getElementById('freeSlotsContainer');
-        const tacticalPanel = document.getElementById('tacticalPanel');
-        const tacticalResults = document.getElementById('tacticalResults');
+        // Elementi tattici commentati per evitare errori in console
+        // const tacticalPanel = document.getElementById('tacticalPanel');
+        // const tacticalResults = document.getElementById('tacticalResults');
 
         async function fetchXML(targetUrl) {
             const response = await fetch(proxyBaseUrl + encodeURIComponent(targetUrl));
@@ -294,7 +284,7 @@
 
                 dividerLine.style.display = 'block';
                 actionSection.style.display = 'flex';
-                tacticalPanel.style.display = 'block'; // Mostra modulo tattico
+                // tacticalPanel.style.display = 'block'; // Commentato
                 summaryPanel.style.display = 'block';
                 
                 activeLayers = []; 
@@ -310,7 +300,7 @@
                 }
 
                 renderAllianceSummaries(); 
-                tacticalResults.innerHTML = ''; // Reset tattica
+                // tacticalResults.innerHTML = ''; // Commentato
 
                 loadBtn.textContent = "Dati Aggiornati ?";
                 setTimeout(() => { loadBtn.textContent = "1. Ricarica Dati Server"; }, 3000);
@@ -416,7 +406,7 @@
             initChart();
         }
 
-        // --- MOTORE ANALISI TATTICA ---
+        // --- MOTORE ANALISI TATTICA (COMMENTATO TEMPORANEAMENTE) ---
         function findAllianceIdByString(inputVal) {
             if (!inputVal) return null;
             let targetId = null;
@@ -430,7 +420,7 @@
             return targetId;
         }
 
-        document.getElementById('generateTacticalBtn').addEventListener('click', () => {
+        /* document.getElementById('generateTacticalBtn').addEventListener('click', () => {
             const allyInput = document.getElementById('allyAllianceInput').value.trim().toLowerCase();
             const enemyInput = document.getElementById('enemyAllianceInput').value.trim().toLowerCase();
 
@@ -441,13 +431,11 @@
             if (!enemyId) return alert("Alleanza NEMICA non trovata. Controlla il nome.");
             if (allyId === enemyId) return alert("Le due alleanze non possono essere la stessa!");
 
-            // Filtra pianeti e giocatori
             let enemyPlanets = allPlanetsList.filter(p => playersMap[p.playerId] && playersMap[p.playerId].allianceId === enemyId);
             let allyPlanets = allPlanetsList.filter(p => playersMap[p.playerId] && playersMap[p.playerId].allianceId === allyId);
 
             if (enemyPlanets.length === 0) return alert("L'alleanza nemica non ha pianeti registrati.");
 
-            // Raggruppa in Cluster di 30 sistemi (es. 1-30, 31-60)
             let clusters = {};
             enemyPlanets.forEach(p => {
                 let bucketIdx = Math.floor((p.s - 1) / 30);
@@ -458,7 +446,6 @@
                 clusters[key].players.add(playersMap[p.playerId].name);
             });
 
-            // Prendi i 5 cluster nemici più grandi
             let sortedClusters = Object.values(clusters).sort((a, b) => b.planets.length - a.planets.length).slice(0, 5);
 
             let html = `<h3 style="color: #ffeb3b; border-bottom: 1px solid #444; padding-bottom: 10px;">Risultati Analisi: Bersagli Primari (Top 5 Cluster Nemici)</h3>`;
@@ -467,7 +454,6 @@
                 let startSys = (cl.b * 30) + 1;
                 let endSys = Math.min((cl.b + 1) * 30, 499);
 
-                // Trova sistemi di atterraggio (Sistemi in questo range con maggior numero di slot liberi 4-12)
                 let landingZones = [];
                 for (let s = startSys; s <= endSys; s++) {
                     let freeCount = 0;
@@ -477,11 +463,9 @@
                     if (freeCount > 0) landingZones.push({ s: s, free: freeCount });
                 }
                 
-                // Ordina per sistemi più vuoti e prendi i migliori 4
                 landingZones.sort((a,b) => b.free - a.free);
                 let bestZones = landingZones.slice(0, 4).map(z => `<span style="background: #1e1e1e; padding: 2px 6px; border-radius: 4px; border: 1px solid #4caf50;">[${cl.g}:${z.s}] (${z.free} slot liberi)</span>`).join(' ');
 
-                // Trova compagni che devono saltare (Coloro che NON hanno pianeti in questa galassia)
                 let playersInGalaxy = new Set(allyPlanets.filter(p => p.g === cl.g).map(p => playersMap[p.playerId].name));
                 let allAllyPlayers = new Set(allyPlanets.map(p => playersMap[p.playerId].name));
                 let recommendedPlayers = [...allAllyPlayers].filter(name => !playersInGalaxy.has(name));
@@ -497,6 +481,7 @@
 
             tacticalResults.innerHTML = html;
         });
+        */
 
         // --- TABELLA POSIZIONI LIBERE (8 e 15) ---
         function generateFreeSlotsSummary() {
@@ -544,7 +529,6 @@
             freeSlotsContainer.innerHTML = html;
         }
 
-        // --- GESTIONE SPUNTA SLOT LIBERI ---
         toggleFreeSlots.addEventListener('change', (e) => {
             if (e.target.checked && allPlanetsList.length > 0) {
                 freeSlotsPanel.style.display = 'block';
@@ -835,37 +819,80 @@
 
             if (!targetId) return alert("Alleanza non trovata.");
 
-            const allianceSpots = [];
-
-            allPlanetsList.forEach(p => {
-                const player = playersMap[p.playerId];
-                if (player && player.allianceId === targetId) {
-                    allianceSpots.push({ 
-                        x: p.s, y: p.g, r: 7, 
-                        playerName: player.name, 
-                        playerStatus: player.statusText 
-                    });
-                }
-            });
-
-            if (allianceSpots.length === 0) return alert("Nessun pianeta trovato per questa alleanza.");
-
-            const layerColor = getNextColor();
+            const splitColors = document.getElementById('splitAllianceColors').checked;
             const allianceTag = alliancesMap[targetId].tag;
 
-            activeLayers.push({
-                type: 'alliance',
-                label: `Ally: [${allianceTag}]`,
-                allianceTag: allianceTag,
-                color: layerColor,
-                dataset: {
+            if (splitColors) {
+                // Raggruppa i pianeti per giocatore
+                const playersInAlly = {};
+                allPlanetsList.forEach(p => {
+                    const player = playersMap[p.playerId];
+                    if (player && player.allianceId === targetId) {
+                        if (!playersInAlly[player.name]) {
+                            playersInAlly[player.name] = { spots: [] };
+                        }
+                        playersInAlly[player.name].spots.push({
+                            x: p.s, y: p.g, r: 7,
+                            playerName: player.name,
+                            playerStatus: player.statusText
+                        });
+                    }
+                });
+
+                const playerNames = Object.keys(playersInAlly);
+                if (playerNames.length === 0) return alert("Nessun pianeta trovato per questa alleanza.");
+
+                // Aggiunge un layer diverso per ogni giocatore
+                playerNames.forEach(pName => {
+                    const layerColor = getNextColor();
+                    activeLayers.push({
+                        type: 'alliance',
+                        label: `[${allianceTag}] ${pName}`,
+                        allianceTag: allianceTag,
+                        color: layerColor,
+                        dataset: {
+                            label: `[${allianceTag}] ${pName}`,
+                            data: playersInAlly[pName].spots,
+                            backgroundColor: layerColor,
+                            borderColor: 'rgba(255,255,255,0.8)',
+                            borderWidth: 1.5
+                        }
+                    });
+                });
+
+            } else {
+                // Logica originale: un solo layer globale per l'alleanza
+                const allianceSpots = [];
+
+                allPlanetsList.forEach(p => {
+                    const player = playersMap[p.playerId];
+                    if (player && player.allianceId === targetId) {
+                        allianceSpots.push({ 
+                            x: p.s, y: p.g, r: 7, 
+                            playerName: player.name, 
+                            playerStatus: player.statusText 
+                        });
+                    }
+                });
+
+                if (allianceSpots.length === 0) return alert("Nessun pianeta trovato per questa alleanza.");
+
+                const layerColor = getNextColor();
+
+                activeLayers.push({
+                    type: 'alliance',
                     label: `Ally: [${allianceTag}]`,
-                    data: allianceSpots,
-                    backgroundColor: layerColor,
-                    borderColor: 'rgba(255,255,255,0.8)',
-                    borderWidth: 1.5
-                }
-            });
+                    allianceTag: allianceTag,
+                    color: layerColor,
+                    dataset: {
+                        label: `Ally: [${allianceTag}]`,
+                        data: allianceSpots,
+                        backgroundColor: layerColor,
+                        borderColor: 'rgba(255,255,255,0.8)',
+                        borderWidth: 1.5
+                    }
+                });
+            }
 
             document.getElementById('allianceInput').value = ""; 
             renderHighlights();
