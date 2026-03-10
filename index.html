@@ -48,6 +48,13 @@
         /* Stili Lista Giocatori nelle celle */
         .player-item { font-size: 13px; padding: 4px 0; border-bottom: 1px dashed #444; color: #ddd; }
         .player-item:last-child { border-bottom: none; }
+
+        /* Stili Posizioni Libere */
+        .scrollable-list { max-height: 80px; overflow-y: auto; font-size: 12px; color: #bbb; line-height: 1.5; padding-right: 5px; }
+        .scrollable-list::-webkit-scrollbar { width: 6px; }
+        .scrollable-list::-webkit-scrollbar-track { background: #2a2a2a; }
+        .scrollable-list::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+        .slot-count { font-weight: bold; color: #4caf50; margin-top: 8px; font-size: 13px; border-top: 1px solid #444; padding-top: 4px; }
     </style>
 </head>
 <body>
@@ -126,8 +133,15 @@
         <div id="tableContainer"></div>
     </div>
 
+    <div class="summary-panel" id="freeSlotsPanel" style="display: none;">
+        <h2>Posizioni Strategiche Libere (Slot 8 e 15)</h2>
+        <p style="color: #bbb; font-size: 14px; margin-top: -10px; margin-bottom: 15px;">
+            Elenco dei sistemi in cui la posizione specificata risulta attualmente vuota.
+        </p>
+        <div id="freeSlotsContainer"></div>
+    </div>
+
     <script>
-        // MODIFICA PER NETLIFY FUNCTIONS
         const proxyBaseUrl = '/.netlify/functions/proxy?url=';
         let chartInstance = null;
 
@@ -136,6 +150,7 @@
         let allPlanetsList = []; 
         let playersMap = {}; 
         let alliancesMap = {}; 
+        let occupiedPositions = new Set(); // Mantiene traccia di "G-S-P" per trovare le posizioni libere
         
         // --- STATO ATTIVO ---
         let activeLayers = []; 
@@ -165,6 +180,8 @@
         const tableContainer = document.getElementById('tableContainer');
         const allianceSummaryPanel = document.getElementById('allianceSummaryPanel');
         const allianceTableContainer = document.getElementById('allianceTableContainer');
+        const freeSlotsPanel = document.getElementById('freeSlotsPanel');
+        const freeSlotsContainer = document.getElementById('freeSlotsContainer');
 
         async function fetchXML(targetUrl) {
             const response = await fetch(proxyBaseUrl + encodeURIComponent(targetUrl));
@@ -186,7 +203,11 @@
                 for(let i = 0; i < universes.length; i++) {
                     const id = universes[i].getAttribute('id');
                     const href = universes[i].getAttribute('href');
-                    universeSelect.innerHTML += `<option value="${href}">Universo ${id}</option>`;
+                    const name = universes[i].getAttribute('name');
+                    
+                    // Modifica: Aggiunto il nome dell'universo se presente
+                    const displayName = name ? `Universo ${id} (${name})` : `Universo ${id}`;
+                    universeSelect.innerHTML += `<option value="${href}">${displayName}</option>`;
                 }
                 loadBtn.disabled = false;
             } catch (error) {
@@ -219,6 +240,7 @@
                 dividerLine.style.display = 'block';
                 actionSection.style.display = 'flex';
                 summaryPanel.style.display = 'block';
+                freeSlotsPanel.style.display = 'block';
                 
                 activeLayers = []; 
                 colorIndex = 0;
@@ -226,6 +248,7 @@
                 renderHighlights();
                 updateChart();
                 generateDensitySummary(); 
+                generateFreeSlotsSummary(); // Nuova funzione generatrice posizioni libere
                 renderAllianceSummaries(); 
 
                 loadBtn.textContent = "Dati Aggiornati ?";
@@ -290,6 +313,7 @@
             const planets = xmlDoc.getElementsByTagName('planet');
             const densityMap = {};
             allPlanetsList = []; 
+            occupiedPositions.clear(); // Resetta i set per le posizioni libere
 
             for (let i = 0; i < planets.length; i++) {
                 const planet = planets[i];
@@ -301,8 +325,12 @@
                 const parts = coords.split(':');
                 const galaxy = parseInt(parts[0], 10);
                 const system = parseInt(parts[1], 10);
+                const position = parseInt(parts[2], 10);
                 
                 allPlanetsList.push({ g: galaxy, s: system, playerId: playerId });
+
+                // Registra la posizione occupata per la nuova funzionalità
+                occupiedPositions.add(`${galaxy}-${system}-${position}`);
 
                 const key = `${galaxy}-${system}`;
                 if (!densityMap[key]) densityMap[key] = { g: galaxy, s: system, count: 0 };
@@ -325,6 +353,53 @@
             };
             
             initChart();
+        }
+
+        // --- NUOVA TABELLA POSIZIONI LIBERE (8 e 15) ---
+        function generateFreeSlotsSummary() {
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Galassia</th>
+                            <th>Slot 8 Libero (Sistemi)</th>
+                            <th>Slot 15 Libero (Sistemi)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (let g = 1; g <= 9; g++) {
+                let free8 = [];
+                let free15 = [];
+                
+                // Controlla ogni sistema della galassia
+                for (let s = 1; s <= 499; s++) {
+                    if (!occupiedPositions.has(`${g}-${s}-8`)) free8.push(s);
+                    if (!occupiedPositions.has(`${g}-${s}-15`)) free15.push(s);
+                }
+
+                html += `
+                    <tr>
+                        <td class="galaxy-col">G ${g}</td>
+                        <td style="text-align: left; vertical-align: top; width: 40%;">
+                            <div class="scrollable-list">
+                                ${free8.length > 0 ? free8.join(', ') : '<span style="color: #ff4c4c;">Nessuna posizione libera</span>'}
+                            </div>
+                            <div class="slot-count">Totale libere: ${free8.length}</div>
+                        </td>
+                        <td style="text-align: left; vertical-align: top; width: 40%;">
+                            <div class="scrollable-list">
+                                ${free15.length > 0 ? free15.join(', ') : '<span style="color: #ff4c4c;">Nessuna posizione libera</span>'}
+                            </div>
+                            <div class="slot-count">Totale libere: ${free15.length}</div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            html += `</tbody></table>`;
+            freeSlotsContainer.innerHTML = html;
         }
 
         function generateDensitySummary() {
