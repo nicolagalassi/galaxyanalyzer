@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OGame Universe Tracker Completo</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #ffffff; padding: 20px; margin: 0; }
+        
+        /* Contenitori e Controlli */
+        .panel { background-color: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        
+        /* Form Elementi */
+        select, input[type="text"], button { padding: 10px; border-radius: 4px; border: 1px solid #333; background: #2a2a2a; color: white; font-size: 14px; }
+        input[type="text"] { width: 220px; }
+        button { background-color: #007bff; border: none; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        
+        /* Grafico, Badge e Tabella */
+        .chart-container { background-color: #1e1e1e; padding: 20px; border-radius: 8px; height: 65vh; position: relative; width: 100%; box-sizing: border-box; margin-bottom: 20px; }
+        #loadingMsg { color: #ffeb3b; font-weight: bold; display: none; margin-left: 15px; }
+        
+        #activeHighlights { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .badge-close { cursor: pointer; background: rgba(0,0,0,0.3); border-radius: 50%; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; transition: background 0.2s; }
+        .badge-close:hover { background: rgba(0,0,0,0.7); }
+
+        .divider { width: 100%; height: 1px; background-color: #444; margin: 15px 0; }
+
+        .checkbox-container { display: flex; align-items: center; gap: 8px; background: #2a2a2a; padding: 10px; border-radius: 4px; border: 1px solid #333; cursor: pointer; }
+        .checkbox-container input { cursor: pointer; width: 16px; height: 16px; }
+
+        /* Stili Tabelle */
+        .summary-panel { background-color: #1e1e1e; padding: 20px; border-radius: 8px; overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; margin-bottom: 15px; }
+        th, td { padding: 10px; border: 1px solid #333; }
+        th { background-color: #2a2a2a; color: #007bff; }
+        tr:nth-child(even) { background-color: #242424; }
+        tr:hover { background-color: #333; }
+        .galaxy-col { font-weight: bold; background-color: #2a2a2a; color: #ffeb3b; width: 100px; }
+        
+        /* Stili Lista Giocatori nelle celle */
+        .player-item { font-size: 13px; padding: 4px 0; border-bottom: 1px dashed #444; color: #ddd; }
+        .player-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+    <h1>Tracker Strategico Universo OGame</h1>
+    
+    <div class="panel">
+        <div class="controls" id="loadSection">
+            <div class="input-group">
+                <label for="countrySelect">Community (Paese):</label>
+                <select id="countrySelect">
+                    <option value="it" selected>Italia (IT)</option>
+                    <option value="en">Internazionale (EN)</option>
+                    <option value="de">Germania (DE)</option>
+                    <option value="fr">Francia (FR)</option>
+                    <option value="es">Spagna (ES)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="universeSelect">Universo:</label>
+                <select id="universeSelect">
+                    <option value="">Seleziona un Paese prima...</option>
+                </select>
+            </div>
+
+            <button id="loadBtn">1. Scarica Dati Server</button>
+            <span id="loadingMsg">Scaricamento dati in corso, attendere...</span>
+        </div>
+
+        <div class="divider" id="dividerLine" style="display: none;"></div>
+
+        <div class="controls" id="actionSection" style="display: none;">
+            <div class="input-group">
+                <label for="playerName">Aggiungi Giocatore:</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="playerName" placeholder="Es. Legolas">
+                    <button id="addPlayerBtn" class="btn-success">+</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="allianceInput">Aggiungi Alleanza (Nome o Tag):</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="allianceInput" list="allianceList" placeholder="Scrivi per cercare...">
+                    <datalist id="allianceList"></datalist>
+                    <button id="addAllianceBtn" class="btn-success">+</button>
+                </div>
+            </div>
+
+            <div class="input-group" style="justify-content: flex-end;">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="toggleBackground" checked>
+                    Mostra sfondo Galassia
+                </label>
+            </div>
+        </div>
+
+        <div id="activeHighlights"></div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="universeMap"></canvas>
+    </div>
+
+    <div class="summary-panel" id="allianceSummaryPanel" style="display: none;">
+        <h2>Dettaglio Combinato Alleanze Evidenziate</h2>
+        <p style="color: #bbb; font-size: 14px; margin-top: -10px; margin-bottom: 15px;">
+            Distribuzione dei giocatori delle alleanze attive per settori. Tra parentesi il numero di pianeti.
+        </p>
+        <div id="allianceTableContainer"></div>
+    </div>
+
+    <div class="summary-panel" id="summaryPanel" style="display: none;">
+        <h2>Riassunto Densità Pianeti (Globale)</h2>
+        <div id="tableContainer"></div>
+    </div>
+
+    <script>
+        // MODIFICA PER NETLIFY FUNCTIONS
+        const proxyBaseUrl = '/.netlify/functions/proxy?url=';
+        let chartInstance = null;
+
+        // --- CACHE DATI ---
+        let baseDensityDataset = null; 
+        let allPlanetsList = []; 
+        let playersMap = {}; 
+        let alliancesMap = {}; 
+        
+        // --- STATO ATTIVO ---
+        let activeLayers = []; 
+        
+        const colorPalette = [
+            'rgba(255, 99, 132, 1)',   // Rosso
+            'rgba(75, 192, 192, 1)',   // Verde acqua
+            'rgba(255, 206, 86, 1)',   // Giallo
+            'rgba(153, 102, 255, 1)',  // Viola
+            'rgba(255, 159, 64, 1)',   // Arancione
+            'rgba(54, 235, 114, 1)',   // Verde brillante
+            'rgba(235, 54, 184, 1)',   // Fucsia
+            'rgba(255, 255, 255, 1)'   // Bianco
+        ];
+        let colorIndex = 0;
+
+        // --- ELEMENTI DOM ---
+        const countrySelect = document.getElementById('countrySelect');
+        const universeSelect = document.getElementById('universeSelect');
+        const loadBtn = document.getElementById('loadBtn');
+        const loadingMsg = document.getElementById('loadingMsg');
+        const actionSection = document.getElementById('actionSection');
+        const dividerLine = document.getElementById('dividerLine');
+        const allianceList = document.getElementById('allianceList');
+        const toggleBackground = document.getElementById('toggleBackground');
+        const summaryPanel = document.getElementById('summaryPanel');
+        const tableContainer = document.getElementById('tableContainer');
+        const allianceSummaryPanel = document.getElementById('allianceSummaryPanel');
+        const allianceTableContainer = document.getElementById('allianceTableContainer');
+
+        async function fetchXML(targetUrl) {
+            const response = await fetch(proxyBaseUrl + encodeURIComponent(targetUrl));
+            if (!response.ok) throw new Error('Errore di rete');
+            const text = await response.text();
+            return new DOMParser().parseFromString(text, "text/xml");
+        }
+
+        async function loadUniverses() {
+            const country = countrySelect.value;
+            universeSelect.innerHTML = '<option value="">Caricamento...</option>';
+            loadBtn.disabled = true;
+
+            try {
+                const xmlDoc = await fetchXML(`https://s269-${country}.ogame.gameforge.com/api/universes.xml`);
+                const universes = xmlDoc.getElementsByTagName('universe');
+                
+                universeSelect.innerHTML = '';
+                for(let i = 0; i < universes.length; i++) {
+                    const id = universes[i].getAttribute('id');
+                    const href = universes[i].getAttribute('href');
+                    universeSelect.innerHTML += `<option value="${href}">Universo ${id}</option>`;
+                }
+                loadBtn.disabled = false;
+            } catch (error) {
+                universeSelect.innerHTML = '<option value="">Errore API</option>';
+            }
+        }
+        countrySelect.addEventListener('change', loadUniverses);
+        window.addEventListener('DOMContentLoaded', loadUniverses);
+
+        loadBtn.addEventListener('click', async () => {
+            const universeUrl = universeSelect.value;
+            if (!universeUrl) return;
+
+            loadingMsg.style.display = 'inline-block';
+            loadBtn.disabled = true;
+            countrySelect.disabled = true;
+            universeSelect.disabled = true;
+
+            try {
+                const [universeXml, playersXml, alliancesXml] = await Promise.all([
+                    fetchXML(`${universeUrl}/api/universe.xml`),
+                    fetchXML(`${universeUrl}/api/players.xml`),
+                    fetchXML(`${universeUrl}/api/alliances.xml`)
+                ]);
+
+                parseAlliances(alliancesXml);
+                parsePlayers(playersXml);
+                parseUniverseAndRenderBase(universeXml);
+
+                dividerLine.style.display = 'block';
+                actionSection.style.display = 'flex';
+                summaryPanel.style.display = 'block';
+                
+                activeLayers = []; 
+                colorIndex = 0;
+                toggleBackground.checked = true; 
+                renderHighlights();
+                updateChart();
+                generateDensitySummary(); 
+                renderAllianceSummaries(); 
+
+                loadBtn.textContent = "Dati Aggiornati ?";
+                setTimeout(() => { loadBtn.textContent = "1. Ricarica Dati Server"; }, 3000);
+
+            } catch (error) {
+                alert("Errore nello scaricamento dei dati XML.");
+                console.error(error);
+            } finally {
+                loadingMsg.style.display = 'none';
+                loadBtn.disabled = false;
+                countrySelect.disabled = false;
+                universeSelect.disabled = false;
+            }
+        });
+
+        function parseAlliances(xmlDoc) {
+            alliancesMap = {};
+            allianceList.innerHTML = ''; 
+            const alliances = xmlDoc.getElementsByTagName('alliance');
+            for (let i = 0; i < alliances.length; i++) {
+                const id = alliances[i].getAttribute('id');
+                const tag = alliances[i].getAttribute('tag');
+                const name = alliances[i].getAttribute('name');
+                alliancesMap[id] = { tag, name };
+                const option = document.createElement('option');
+                option.value = `[${tag}] ${name}`; 
+                allianceList.appendChild(option);
+            }
+        }
+
+        function getReadableStatus(statusStr) {
+            if (!statusStr) return "Attivo";
+            let labels = [];
+            if (statusStr.includes('v')) labels.push("Vacanza");
+            if (statusStr.includes('i') || statusStr.includes('I')) labels.push("Inattivo");
+            if (statusStr.includes('b')) labels.push("Bannato");
+            if (statusStr.includes('o')) labels.push("Fuorilegge");
+            if (statusStr.includes('a')) labels.push("Admin");
+            return labels.length > 0 ? labels.join(', ') : "Sconosciuto";
+        }
+
+        function parsePlayers(xmlDoc) {
+            playersMap = {};
+            const players = xmlDoc.getElementsByTagName('player');
+            for (let i = 0; i < players.length; i++) {
+                const id = players[i].getAttribute('id');
+                const name = players[i].getAttribute('name');
+                const allianceId = players[i].getAttribute('alliance'); 
+                const statusStr = players[i].getAttribute('status'); 
+                
+                playersMap[id] = { 
+                    name: name,
+                    nameLower: name.toLowerCase(),
+                    allianceId: allianceId,
+                    statusText: getReadableStatus(statusStr)
+                };
+            }
+        }
+
+        function parseUniverseAndRenderBase(xmlDoc) {
+            const planets = xmlDoc.getElementsByTagName('planet');
+            const densityMap = {};
+            allPlanetsList = []; 
+
+            for (let i = 0; i < planets.length; i++) {
+                const planet = planets[i];
+                const coords = planet.getAttribute('coords');
+                const playerId = planet.getAttribute('player');
+
+                if (!coords) continue;
+                
+                const parts = coords.split(':');
+                const galaxy = parseInt(parts[0], 10);
+                const system = parseInt(parts[1], 10);
+                
+                allPlanetsList.push({ g: galaxy, s: system, playerId: playerId });
+
+                const key = `${galaxy}-${system}`;
+                if (!densityMap[key]) densityMap[key] = { g: galaxy, s: system, count: 0 };
+                densityMap[key].count += 1;
+            }
+
+            const universeDataArray = Object.values(densityMap).map(item => ({
+                x: item.s,
+                y: item.g,
+                r: Math.max(1.5, item.count * 1.2)
+            }));
+
+            baseDensityDataset = {
+                label: 'Densità Universo',
+                data: universeDataArray,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 0.4)',
+                borderWidth: 1,
+                hidden: false
+            };
+            
+            initChart();
+        }
+
+        function generateDensitySummary() {
+            const ranges = {
+                1: [0,0,0,0,0], 2: [0,0,0,0,0], 3: [0,0,0,0,0],
+                4: [0,0,0,0,0], 5: [0,0,0,0,0], 6: [0,0,0,0,0],
+                7: [0,0,0,0,0], 8: [0,0,0,0,0], 9: [0,0,0,0,0]
+            };
+
+            allPlanetsList.forEach(p => {
+                if (p.g < 1 || p.g > 9) return;
+                let rangeIdx = 0;
+                if (p.s > 100 && p.s <= 200) rangeIdx = 1;
+                else if (p.s > 200 && p.s <= 300) rangeIdx = 2;
+                else if (p.s > 300 && p.s <= 400) rangeIdx = 3;
+                else if (p.s > 400) rangeIdx = 4;
+                
+                ranges[p.g][rangeIdx]++;
+            });
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Galassia</th>
+                            <th>Sis. 1-100</th>
+                            <th>Sis. 101-200</th>
+                            <th>Sis. 201-300</th>
+                            <th>Sis. 301-400</th>
+                            <th>Sis. 401-499</th>
+                            <th>Totale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (let g = 1; g <= 9; g++) {
+                const rData = ranges[g];
+                const total = rData.reduce((a, b) => a + b, 0);
+                html += `
+                    <tr>
+                        <td class="galaxy-col">G ${g}</td>
+                        <td>${rData[0]}</td>
+                        <td>${rData[1]}</td>
+                        <td>${rData[2]}</td>
+                        <td>${rData[3]}</td>
+                        <td>${rData[4]}</td>
+                        <td style="font-weight:bold; color:#4caf50;">${total}</td>
+                    </tr>
+                `;
+            }
+            html += `</tbody></table>`;
+            tableContainer.innerHTML = html;
+        }
+
+        function renderAllianceSummaries() {
+            const container = document.getElementById('allianceTableContainer');
+            container.innerHTML = '';
+            
+            const allianceLayers = activeLayers.filter(layer => layer.type === 'alliance');
+            
+            if (allianceLayers.length === 0) {
+                allianceSummaryPanel.style.display = 'none';
+                return;
+            }
+            
+            allianceSummaryPanel.style.display = 'block';
+
+            const combinedGrid = {};
+            for (let g = 1; g <= 9; g++) combinedGrid[g] = [[], [], [], [], []];
+
+            const allAllyPlanets = [];
+            allianceLayers.forEach(layer => {
+                layer.dataset.data.forEach(p => {
+                    allAllyPlanets.push({
+                        ...p, 
+                        allianceTag: layer.allianceTag,
+                        color: layer.color
+                    });
+                });
+            });
+
+            allAllyPlanets.forEach(p => {
+                const g = p.y;
+                const s = p.x;
+                if (g >= 1 && g <= 9) {
+                    let rangeIdx = 0;
+                    if (s > 100 && s <= 200) rangeIdx = 1;
+                    else if (s > 200 && s <= 300) rangeIdx = 2;
+                    else if (s > 300 && s <= 400) rangeIdx = 3;
+                    else if (s > 400) rangeIdx = 4;
+                    
+                    combinedGrid[g][rangeIdx].push({ name: p.playerName, tag: p.allianceTag, color: p.color });
+                }
+            });
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Galassia</th>
+                            <th>Sis. 1-100</th>
+                            <th>Sis. 101-200</th>
+                            <th>Sis. 201-300</th>
+                            <th>Sis. 301-400</th>
+                            <th>Sis. 401-499</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (let g = 1; g <= 9; g++) {
+                html += `<tr><td class="galaxy-col">G ${g}</td>`;
+                
+                for(let rangeIdx=0; rangeIdx<5; rangeIdx++) {
+                    const cellPlanets = combinedGrid[g][rangeIdx];
+                    let cellHtml = '';
+                    
+                    if (cellPlanets.length > 0) {
+                        const conteggio = {};
+                        cellPlanets.forEach(p => {
+                            const key = `${p.name}___${p.tag}___${p.color}`;
+                            conteggio[key] = (conteggio[key] || 0) + 1;
+                        });
+                        
+                        const playerStrings = Object.entries(conteggio).map(([key, count]) => {
+                            const [name, tag, color] = key.split('___');
+                            return `
+                                <div class="player-item">
+                                    <strong style="color:#fff;">${name}</strong> (${count})
+                                    <strong style="color:${color};">[${tag}]</strong>
+                                </div>`;
+                        }).sort(); 
+                        
+                        cellHtml = playerStrings.join('');
+                    } else {
+                        cellHtml = '<span style="color:#555">-</span>';
+                    }
+                    
+                    html += `<td style="vertical-align: top; text-align: left;">${cellHtml}</td>`;
+                }
+                
+                html += `</tr>`;
+            }
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('universeMap').getContext('2d');
+            if (chartInstance) chartInstance.destroy(); 
+
+            chartInstance = new Chart(ctx, {
+                type: 'bubble',
+                data: { datasets: [baseDensityDataset] }, 
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Sistema (1-499)', color: '#fff' }, min: 0, max: 500, ticks: { color: '#bbb' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        y: { title: { display: true, text: 'Galassia (1-9)', color: '#fff' }, min: 0, max: 10, reverse: true, ticks: { color: '#bbb', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    },
+                    plugins: {
+                        legend: { display: false }, 
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    if (ctx.datasetIndex === 0) {
+                                        const count = Math.round(ctx.raw.r / 1.2);
+                                        return `Sfondo - [${ctx.raw.y}:${ctx.raw.x}] - Tot. Pianeti: ${count}`;
+                                    } else {
+                                        const statusStr = ctx.raw.playerStatus ? ` (${ctx.raw.playerStatus})` : '';
+                                        const playerInfo = ctx.raw.playerName ? ` - ${ctx.raw.playerName}` : '';
+                                        return `${ctx.dataset.label}${playerInfo}${statusStr} -> [${ctx.raw.y}:${ctx.raw.x}]`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            chartInstance.data.datasets = [baseDensityDataset, ...activeLayers.map(layer => layer.dataset)];
+            chartInstance.update();
+        }
+
+        toggleBackground.addEventListener('change', (e) => {
+            baseDensityDataset.hidden = !e.target.checked;
+            updateChart();
+        });
+
+        function renderHighlights() {
+            const container = document.getElementById('activeHighlights');
+            container.innerHTML = '';
+            
+            activeLayers.forEach((layer, index) => {
+                const badge = document.createElement('div');
+                badge.className = 'badge';
+                badge.style.backgroundColor = layer.dataset.backgroundColor;
+                
+                badge.innerHTML = `
+                    <span>${layer.label}</span>
+                    <div class="badge-close" onclick="removeHighlight(${index})">X</div>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        window.removeHighlight = function(index) {
+            activeLayers.splice(index, 1);
+            renderHighlights();
+            updateChart();
+            renderAllianceSummaries(); 
+        };
+
+        function getNextColor() {
+            const color = colorPalette[colorIndex];
+            colorIndex = (colorIndex + 1) % colorPalette.length;
+            return color;
+        }
+
+        document.getElementById('addPlayerBtn').addEventListener('click', () => {
+            const inputVal = document.getElementById('playerName').value.trim().toLowerCase();
+            if (!inputVal) return;
+
+            let targetId = null;
+            for (const [id, data] of Object.entries(playersMap)) {
+                if (data.nameLower === inputVal) {
+                    targetId = id;
+                    break;
+                }
+            }
+
+            if (!targetId) return alert("Giocatore non trovato.");
+            const pData = playersMap[targetId];
+
+            const playerSpots = allPlanetsList
+                .filter(p => p.playerId === targetId)
+                .map(p => ({ 
+                    x: p.s, y: p.g, r: 8, 
+                    playerStatus: pData.statusText 
+                }));
+
+            if (playerSpots.length === 0) return alert("Il giocatore non ha pianeti registrati.");
+
+            activeLayers.push({
+                type: 'player',
+                label: `Ply: ${pData.name}`,
+                dataset: {
+                    label: `Ply: ${pData.name}`,
+                    data: playerSpots,
+                    backgroundColor: getNextColor(),
+                    borderColor: 'rgba(0,0,0,0.8)',
+                    borderWidth: 2
+                }
+            });
+
+            document.getElementById('playerName').value = ""; 
+            renderHighlights();
+            updateChart();
+        });
+
+        document.getElementById('addAllianceBtn').addEventListener('click', () => {
+            const inputVal = document.getElementById('allianceInput').value.trim().toLowerCase();
+            if (!inputVal) return;
+
+            let targetId = null;
+            let allianceTag = "";
+
+            for (const [id, data] of Object.entries(alliancesMap)) {
+                const fullString = `[${data.tag}] ${data.name}`.toLowerCase();
+                if (fullString === inputVal || data.tag.toLowerCase() === inputVal || data.name.toLowerCase() === inputVal) {
+                    targetId = id;
+                    allianceTag = data.tag;
+                    break;
+                }
+            }
+
+            if (!targetId) return alert("Alleanza non trovata.");
+
+            const allianceSpots = [];
+
+            allPlanetsList.forEach(p => {
+                const player = playersMap[p.playerId];
+                if (player && player.allianceId === targetId) {
+                    allianceSpots.push({ 
+                        x: p.s, y: p.g, r: 7, 
+                        playerName: player.name, 
+                        playerStatus: player.statusText 
+                    });
+                }
+            });
+
+            if (allianceSpots.length === 0) return alert("Nessun pianeta trovato per questa alleanza.");
+
+            const layerColor = getNextColor();
+
+            activeLayers.push({
+                type: 'alliance',
+                label: `Ally: [${allianceTag}]`,
+                allianceTag: allianceTag,
+                color: layerColor,
+                dataset: {
+                    label: `Ally: [${allianceTag}]`,
+                    data: allianceSpots,
+                    backgroundColor: layerColor,
+                    borderColor: 'rgba(255,255,255,0.8)',
+                    borderWidth: 1.5
+                }
+            });
+
+            document.getElementById('allianceInput').value = ""; 
+            renderHighlights();
+            updateChart();
+            renderAllianceSummaries(); 
+        });
+
+    </script>
+</body>
+</html>
