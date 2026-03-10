@@ -105,10 +105,14 @@
                 </div>
             </div>
 
-            <div class="input-group" style="justify-content: flex-end;">
+            <div class="input-group" style="flex-direction: row; gap: 15px;">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="toggleFreeSlots">
+                    Mostra Slot 8/15
+                </label>
                 <label class="checkbox-container">
                     <input type="checkbox" id="toggleBackground" checked>
-                    Mostra sfondo Galassia
+                    Sfondo Galassia
                 </label>
             </div>
         </div>
@@ -150,7 +154,8 @@
         let allPlanetsList = []; 
         let playersMap = {}; 
         let alliancesMap = {}; 
-        let occupiedPositions = new Set(); // Mantiene traccia di "G-S-P" per trovare le posizioni libere
+        let occupiedPositions = new Set(); // Traccia "G-S-P" per le posizioni libere
+        let maxGalaxies = 9; // Valore di default, sovrascritto dinamicamente
         
         // --- STATO ATTIVO ---
         let activeLayers = []; 
@@ -176,6 +181,7 @@
         const dividerLine = document.getElementById('dividerLine');
         const allianceList = document.getElementById('allianceList');
         const toggleBackground = document.getElementById('toggleBackground');
+        const toggleFreeSlots = document.getElementById('toggleFreeSlots');
         const summaryPanel = document.getElementById('summaryPanel');
         const tableContainer = document.getElementById('tableContainer');
         const allianceSummaryPanel = document.getElementById('allianceSummaryPanel');
@@ -203,11 +209,24 @@
                 for(let i = 0; i < universes.length; i++) {
                     const id = universes[i].getAttribute('id');
                     const href = universes[i].getAttribute('href');
-                    const name = universes[i].getAttribute('name');
                     
-                    // Modifica: Aggiunto il nome dell'universo se presente
-                    const displayName = name ? `Universo ${id} (${name})` : `Universo ${id}`;
-                    universeSelect.innerHTML += `<option value="${href}">${displayName}</option>`;
+                    // Crea l'opzione inizialmente solo con l'ID
+                    const option = document.createElement('option');
+                    option.value = href;
+                    option.text = `Universo ${id} ...`;
+                    universeSelect.appendChild(option);
+
+                    // Fetch asincrono del nome del singolo universo
+                    fetchXML(`${href}/api/serverData.xml`).then(serverXml => {
+                        const nameNodes = serverXml.getElementsByTagName('name');
+                        if (nameNodes.length > 0) {
+                            option.text = `Universo ${id} (${nameNodes[0].textContent})`;
+                        } else {
+                            option.text = `Universo ${id}`;
+                        }
+                    }).catch(err => {
+                        option.text = `Universo ${id}`; // Fallback in caso di errore
+                    });
                 }
                 loadBtn.disabled = false;
             } catch (error) {
@@ -227,11 +246,21 @@
             universeSelect.disabled = true;
 
             try {
-                const [universeXml, playersXml, alliancesXml] = await Promise.all([
+                // Aggiungiamo il fetch di serverData.xml per leggere il numero dinamico di galassie
+                const [universeXml, playersXml, alliancesXml, serverDataXml] = await Promise.all([
                     fetchXML(`${universeUrl}/api/universe.xml`),
                     fetchXML(`${universeUrl}/api/players.xml`),
-                    fetchXML(`${universeUrl}/api/alliances.xml`)
+                    fetchXML(`${universeUrl}/api/alliances.xml`),
+                    fetchXML(`${universeUrl}/api/serverData.xml`)
                 ]);
+
+                // Rilevamento dinamico Galassie
+                const galaxyNode = serverDataXml.getElementsByTagName('galaxies');
+                if (galaxyNode.length > 0) {
+                    maxGalaxies = parseInt(galaxyNode[0].textContent, 10);
+                } else {
+                    maxGalaxies = 9; // Fallback
+                }
 
                 parseAlliances(alliancesXml);
                 parsePlayers(playersXml);
@@ -240,7 +269,6 @@
                 dividerLine.style.display = 'block';
                 actionSection.style.display = 'flex';
                 summaryPanel.style.display = 'block';
-                freeSlotsPanel.style.display = 'block';
                 
                 activeLayers = []; 
                 colorIndex = 0;
@@ -248,7 +276,12 @@
                 renderHighlights();
                 updateChart();
                 generateDensitySummary(); 
-                generateFreeSlotsSummary(); // Nuova funzione generatrice posizioni libere
+                
+                if (toggleFreeSlots.checked) {
+                    freeSlotsPanel.style.display = 'block';
+                    generateFreeSlotsSummary();
+                }
+
                 renderAllianceSummaries(); 
 
                 loadBtn.textContent = "Dati Aggiornati ?";
@@ -313,7 +346,7 @@
             const planets = xmlDoc.getElementsByTagName('planet');
             const densityMap = {};
             allPlanetsList = []; 
-            occupiedPositions.clear(); // Resetta i set per le posizioni libere
+            occupiedPositions.clear();
 
             for (let i = 0; i < planets.length; i++) {
                 const planet = planets[i];
@@ -327,9 +360,10 @@
                 const system = parseInt(parts[1], 10);
                 const position = parseInt(parts[2], 10);
                 
-                allPlanetsList.push({ g: galaxy, s: system, playerId: playerId });
+                // Sicurezza: esclude dati anomali superiori al limite dell'universo
+                if (galaxy > maxGalaxies) continue;
 
-                // Registra la posizione occupata per la nuova funzionalità
+                allPlanetsList.push({ g: galaxy, s: system, playerId: playerId });
                 occupiedPositions.add(`${galaxy}-${system}-${position}`);
 
                 const key = `${galaxy}-${system}`;
@@ -355,7 +389,7 @@
             initChart();
         }
 
-        // --- NUOVA TABELLA POSIZIONI LIBERE (8 e 15) ---
+        // --- TABELLA POSIZIONI LIBERE (8 e 15) ---
         function generateFreeSlotsSummary() {
             let html = `
                 <table>
@@ -369,11 +403,10 @@
                     <tbody>
             `;
 
-            for (let g = 1; g <= 9; g++) {
+            for (let g = 1; g <= maxGalaxies; g++) {
                 let free8 = [];
                 let free15 = [];
                 
-                // Controlla ogni sistema della galassia
                 for (let s = 1; s <= 499; s++) {
                     if (!occupiedPositions.has(`${g}-${s}-8`)) free8.push(s);
                     if (!occupiedPositions.has(`${g}-${s}-15`)) free15.push(s);
@@ -402,15 +435,23 @@
             freeSlotsContainer.innerHTML = html;
         }
 
+        // --- GESTIONE SPUNTA SLOT LIBERI ---
+        toggleFreeSlots.addEventListener('change', (e) => {
+            if (e.target.checked && allPlanetsList.length > 0) {
+                freeSlotsPanel.style.display = 'block';
+                generateFreeSlotsSummary();
+            } else {
+                freeSlotsPanel.style.display = 'none';
+            }
+        });
+
+        // --- TABELLA DENSITÀ GLOBALE ---
         function generateDensitySummary() {
-            const ranges = {
-                1: [0,0,0,0,0], 2: [0,0,0,0,0], 3: [0,0,0,0,0],
-                4: [0,0,0,0,0], 5: [0,0,0,0,0], 6: [0,0,0,0,0],
-                7: [0,0,0,0,0], 8: [0,0,0,0,0], 9: [0,0,0,0,0]
-            };
+            const ranges = {};
+            for(let g = 1; g <= maxGalaxies; g++) ranges[g] = [0,0,0,0,0];
 
             allPlanetsList.forEach(p => {
-                if (p.g < 1 || p.g > 9) return;
+                if (p.g < 1 || p.g > maxGalaxies) return;
                 let rangeIdx = 0;
                 if (p.s > 100 && p.s <= 200) rangeIdx = 1;
                 else if (p.s > 200 && p.s <= 300) rangeIdx = 2;
@@ -436,7 +477,7 @@
                     <tbody>
             `;
 
-            for (let g = 1; g <= 9; g++) {
+            for (let g = 1; g <= maxGalaxies; g++) {
                 const rData = ranges[g];
                 const total = rData.reduce((a, b) => a + b, 0);
                 html += `
@@ -469,7 +510,7 @@
             allianceSummaryPanel.style.display = 'block';
 
             const combinedGrid = {};
-            for (let g = 1; g <= 9; g++) combinedGrid[g] = [[], [], [], [], []];
+            for (let g = 1; g <= maxGalaxies; g++) combinedGrid[g] = [[], [], [], [], []];
 
             const allAllyPlanets = [];
             allianceLayers.forEach(layer => {
@@ -485,7 +526,7 @@
             allAllyPlanets.forEach(p => {
                 const g = p.y;
                 const s = p.x;
-                if (g >= 1 && g <= 9) {
+                if (g >= 1 && g <= maxGalaxies) {
                     let rangeIdx = 0;
                     if (s > 100 && s <= 200) rangeIdx = 1;
                     else if (s > 200 && s <= 300) rangeIdx = 2;
@@ -511,7 +552,7 @@
                     <tbody>
             `;
 
-            for (let g = 1; g <= 9; g++) {
+            for (let g = 1; g <= maxGalaxies; g++) {
                 html += `<tr><td class="galaxy-col">G ${g}</td>`;
                 
                 for(let rangeIdx=0; rangeIdx<5; rangeIdx++) {
@@ -559,8 +600,21 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { title: { display: true, text: 'Sistema (1-499)', color: '#fff' }, min: 0, max: 500, ticks: { color: '#bbb' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                        y: { title: { display: true, text: 'Galassia (1-9)', color: '#fff' }, min: 0, max: 10, reverse: true, ticks: { color: '#bbb', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                        x: { 
+                            title: { display: true, text: 'Sistema Solare (1 - 499)', color: '#fff' }, 
+                            min: 0, 
+                            max: 500, 
+                            ticks: { color: '#bbb' }, 
+                            grid: { color: 'rgba(255,255,255,0.1)' } 
+                        },
+                        y: { 
+                            title: { display: true, text: `Galassia (1 - ${maxGalaxies})`, color: '#fff' }, 
+                            min: 0, 
+                            max: maxGalaxies + 1, 
+                            reverse: true, 
+                            ticks: { color: '#bbb', stepSize: 1 }, 
+                            grid: { color: 'rgba(255,255,255,0.1)' } 
+                        }
                     },
                     plugins: {
                         legend: { display: false }, 
