@@ -1,37 +1,59 @@
 const axios = require('axios');
 
-exports.handler = async function(event, context) {
-    // Netlify passa i parametri GET dentro event.queryStringParameters
-    const targetUrl = event.queryStringParameters.url;
+// Whitelist of allowed API paths
+const ALLOWED_PATHS = [
+    '/api/universe.xml',
+    '/api/players.xml',
+    '/api/alliances.xml',
+    '/api/serverData.xml',
+    '/api/universes.xml'
+];
 
-    // Controllo di sicurezza
-    if (!targetUrl || !targetUrl.includes('ogame.gameforge.com/api/')) {
-        return {
-            statusCode: 400,
-            body: 'URL non valido o non fornito.'
-        };
+exports.handler = async function(event, context) {
+    const targetUrl = event.queryStringParameters?.url;
+
+    if (!targetUrl) {
+        return { statusCode: 400, body: 'Parametro URL mancante.' };
+    }
+
+    // Security: must be a Gameforge OGame API endpoint
+    const isGameforgeHost  = targetUrl.includes('.ogame.gameforge.com');
+    const isAllowedPath    = ALLOWED_PATHS.some(p => targetUrl.includes(p));
+
+    if (!isGameforgeHost || !isAllowedPath) {
+        return { statusCode: 403, body: 'URL non autorizzato.' };
     }
 
     try {
         const response = await axios.get(targetUrl, {
-            maxContentLength: Infinity,
-            maxBodyLength: Infinity,
-            responseType: 'text' // Forza la risposta come testo per l'XML
+            timeout: 30000,               // 30s timeout
+            maxContentLength: 50_000_000, // 50 MB max
+            maxBodyLength:    50_000_000,
+            responseType: 'text',
+            headers: {
+                'Accept': 'text/xml, application/xml',
+                'Accept-Encoding': 'gzip, deflate',
+                'User-Agent': 'OGame-Universe-Tracker/2.0'
+            }
         });
-        
+
         return {
             statusCode: 200,
             headers: {
-                'Content-Type': 'text/xml',
-                'Access-Control-Allow-Origin': '*' // Abilita CORS per il frontend
+                'Content-Type':                'text/xml; charset=utf-8',
+                'Access-Control-Allow-Origin': '*',
+                'Cache-Control':               'public, max-age=300' // 5 min cache
             },
             body: response.data
         };
+
     } catch (error) {
-        console.error(`Errore nel fetch di ${targetUrl}:`, error.message);
-        return {
-            statusCode: 500,
-            body: 'Errore nel caricamento dell\'API da Gameforge'
-        };
+        const status = error.response?.status ?? 500;
+        const msg    = error.code === 'ECONNABORTED'
+            ? 'Timeout: il server Gameforge non ha risposto in tempo.'
+            : `Errore nel caricamento dell'API da Gameforge: ${error.message}`;
+
+        console.error(`[proxy] Errore fetch ${targetUrl}:`, error.message);
+        return { statusCode: status, body: msg };
     }
 };
