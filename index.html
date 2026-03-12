@@ -5,711 +5,394 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OGame Universe Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg:          #03070f;
-            --panel:       #080f1e;
-            --panel2:      #0b1425;
-            --border:      #0d2244;
-            --border-glow: #1a4a8a;
-            --text:        #c8deff;
-            --muted:       #4a6a9a;
-            --primary:     #00aaff;
-            --primary-dim: #005580;
-            --accent:      #00ffcc;
-            --accent-dim:  #004433;
-            --warn:        #ff6b35;
-            --danger:      #ff2244;
-            --success:     #00ffaa;
-            --grid-line:   rgba(0,170,255,0.07);
-            --glow-blue:   0 0 20px rgba(0,170,255,0.3);
-            --glow-accent: 0 0 20px rgba(0,255,204,0.3);
+            --bg:       #111110;
+            --surface:  #1a1a18;
+            --surface2: #222220;
+            --border:   #2e2e2b;
+            --border2:  #3a3a36;
+            --text:     #f0ede8;
+            --text2:    #9e9a94;
+            --text3:    #5a5752;
+            --amber:    #e8a020;
+            --amber-bg: rgba(232,160,32,0.08);
+            --green:    #4caf78;
+            --red:      #e05555;
+            --white:    #ffffff;
+            --radius:   6px;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            overflow-x: hidden;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
-        /* ── STARFIELD BACKGROUND ── */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                radial-gradient(1px 1px at 72% 8%,  rgba(255,255,255,0.5) 0%, transparent 100%),
-                radial-gradient(1px 1px at 43% 55%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                radial-gradient(1px 1px at 90% 34%, rgba(255,255,255,0.6) 0%, transparent 100%),
-                radial-gradient(1px 1px at 5%  80%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                radial-gradient(1px 1px at 60% 75%, rgba(255,255,255,0.5) 0%, transparent 100%),
-                radial-gradient(1px 1px at 28% 92%, rgba(255,255,255,0.3) 0%, transparent 100%),
-                radial-gradient(1px 1px at 82% 65%, rgba(255,255,255,0.4) 0%, transparent 100%),
-                radial-gradient(2px 2px at 50% 30%, rgba(0,170,255,0.3) 0%, transparent 100%),
-                radial-gradient(2px 2px at 25% 60%, rgba(0,255,204,0.2) 0%, transparent 100%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                linear-gradient(180deg, rgba(0,30,80,0.15) 0%, transparent 40%, transparent 60%, rgba(0,10,30,0.3) 100%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .app-wrapper {
-            position: relative;
-            z-index: 1;
-            max-width: 1400px;
+        .app {
+            max-width: 1280px;
             margin: 0 auto;
-            padding: 20px 16px 40px;
+            padding: 0 24px 60px;
         }
 
         /* ── HEADER ── */
-        .site-header {
-            text-align: center;
-            padding: 30px 0 20px;
-            position: relative;
-        }
-
-        .site-header::before {
-            content: '';
-            display: block;
-            width: 200px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            margin: 0 auto 20px;
+        header {
+            padding: 40px 0 28px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .logo {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(1.4rem, 4vw, 2.4rem);
-            font-weight: 900;
-            letter-spacing: 4px;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+        .logo span { color: var(--amber); }
+
+        .logo-tagline {
+            font-size: 0.78rem;
+            font-family: 'DM Mono', monospace;
+            color: var(--text3);
+            letter-spacing: 2px;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #00aaff 0%, #00ffcc 50%, #ffffff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: drop-shadow(0 0 20px rgba(0,200,255,0.4));
+            margin-top: 7px;
         }
 
-        .logo-sub {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 6px;
-            color: var(--muted);
-            margin-top: 6px;
-            text-transform: uppercase;
-        }
-
-        .site-header::after {
-            content: '';
-            display: block;
-            width: 120px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            margin: 20px auto 0;
-        }
-
-        /* ── PANELS ── */
-        .panel {
-            background: linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 24px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
-        }
-
-        /* corner decorations */
-        .panel::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 12px; height: 12px;
-            border-top: 2px solid var(--primary);
-            border-left: 2px solid var(--primary);
-        }
-
-        .panel-corner-br {
-            position: absolute;
-            bottom: 0; right: 0;
-            width: 12px; height: 12px;
-            border-bottom: 2px solid var(--accent);
-            border-right: 2px solid var(--accent);
-        }
-
-        .panel-title {
-            font-family: 'Orbitron', monospace;
+        .header-status {
+            font-family: 'DM Mono', monospace;
             font-size: 0.75rem;
-            letter-spacing: 3px;
-            color: var(--primary);
+            color: var(--text3);
+            letter-spacing: 1px;
             text-transform: uppercase;
-            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 7px;
+        }
+        .status-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--text3);
+            flex-shrink: 0;
+        }
+        .status-dot.on { background: var(--green); box-shadow: 0 0 8px rgba(76,175,120,0.5); }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 24px;
         }
 
-        .panel-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, var(--border-glow), transparent);
-        }
-
-        h2 {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.8rem;
-            letter-spacing: 3px;
-            color: var(--primary);
+        .card-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
+            color: var(--text3);
+            margin-bottom: 20px;
         }
 
-        /* ── CONTROLS ── */
+        /* ── FORM ── */
         .controls {
             display: flex;
             flex-wrap: wrap;
             gap: 16px;
             align-items: flex-end;
         }
-
-        .input-group {
+        .field {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 7px;
             flex: 1 1 180px;
         }
-
-        .input-group label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem;
-            letter-spacing: 2px;
-            color: var(--muted);
-            text-transform: uppercase;
+        .field label {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text2);
         }
 
         select, input[type="text"] {
             padding: 10px 14px;
-            background: rgba(0, 20, 50, 0.8);
-            border: 1px solid var(--border);
-            border-radius: 2px;
+            background: var(--bg);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
             color: var(--text);
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             font-size: 0.95rem;
             outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color .18s;
             width: 100%;
         }
+        select:focus, input[type="text"]:focus { border-color: var(--amber); }
+        select option { background: #1a1a18; }
 
-        select:focus, input[type="text"]:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(0,170,255,0.15), inset 0 0 10px rgba(0,170,255,0.05);
-        }
-
-        select option { background: #0a1628; }
-
-        button {
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             padding: 10px 20px;
-            background: transparent;
-            border: 1px solid var(--primary);
-            border-radius: 2px;
-            color: var(--primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.25s;
+            transition: all .18s;
+            border: 1px solid transparent;
+            white-space: nowrap;
         }
 
-        button::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--primary);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.25s ease;
-            z-index: 0;
+        .btn-primary {
+            background: var(--amber);
+            color: #111;
+            border-color: var(--amber);
+        }
+        .btn-primary:hover { background: #f0b030; box-shadow: 0 4px 16px rgba(232,160,32,.25); }
+        .btn-primary:active { transform: scale(.97); }
+        .btn-primary:disabled { background: var(--border2); color: var(--text3); border-color: transparent; cursor: not-allowed; }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text2);
+            border-color: var(--border2);
+        }
+        .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+
+        .btn-icon { padding: 10px 14px; font-size: 1.2rem; }
+
+        .row-inp { display: flex; gap: 8px; }
+        .row-inp input { flex: 1; }
+
+        /* ── CHIPS ── */
+        .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 14px;
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: all .18s;
+            color: var(--text2);
+            background: var(--bg);
+        }
+        .chip:hover { border-color: var(--text3); color: var(--text); }
+        .chip:has(input:checked) { border-color: var(--amber); color: var(--amber); background: var(--amber-bg); }
+        .chip input { display: none; }
+
+        /* ── PROGRESS ── */
+        .progress-wrap { display: none; margin-top: 16px; }
+        .progress-track { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--amber); border-radius: 2px; transition: width .35s ease; }
+        .progress-lbl {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem; letter-spacing: 1.5px;
+            color: var(--text3); margin-top: 6px; text-transform: uppercase;
         }
 
-        button span { position: relative; z-index: 1; }
-
-        button:hover { color: #000; box-shadow: var(--glow-blue); }
-        button:hover::before { transform: scaleX(1); }
-        button:active { transform: scale(0.97); }
-        button:disabled {
-            border-color: var(--muted);
-            color: var(--muted);
-            cursor: not-allowed;
-        }
-        button:disabled::before { display: none; }
-
-        .btn-accent {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-        .btn-accent:hover { color: #000; box-shadow: var(--glow-accent); }
-        .btn-accent::before { background: var(--accent); }
-
-        .btn-icon {
-            padding: 10px 16px;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-
-        .btn-export {
-            border-color: #4488cc;
-            color: #4488cc;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-        }
-        .btn-export::before { background: #4488cc; }
-        .btn-export:hover { color: #fff; }
-
-        .flex-row { display: flex; gap: 8px; }
-        .flex-row input { flex: 1; }
-
-        /* ── LOADING STATE ── */
-        #loadingMsg {
-            display: none;
-            width: 100%;
-            text-align: center;
-            margin-top: 12px;
-        }
-
+        /* ── LOADING ── */
+        .loading-bar { display: none; margin-top: 14px; }
         .loading-inner {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 20px;
-            border: 1px solid var(--border-glow);
-            border-radius: 2px;
-            background: rgba(0,30,80,0.4);
+            gap: 10px;
+            padding: 10px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
         }
-
-        .loading-dots {
-            display: flex;
-            gap: 5px;
-        }
-
-        .loading-dots span {
-            width: 6px;
-            height: 6px;
-            background: var(--primary);
+        .ld-dots span {
+            display: inline-block;
+            width: 5px; height: 5px;
             border-radius: 50%;
-            animation: pulse-dot 1.2s infinite;
+            background: var(--amber);
+            animation: ldot 1.2s infinite;
+            margin: 0 2px;
         }
-        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes pulse-dot {
-            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-            40% { opacity: 1; transform: scale(1); }
+        .ld-dots span:nth-child(2) { animation-delay: .2s; }
+        .ld-dots span:nth-child(3) { animation-delay: .4s; }
+        @keyframes ldot {
+            0%,80%,100% { opacity:.2; transform:scale(.8); }
+            40%          { opacity:1;  transform:scale(1); }
         }
-
-        .loading-text {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            letter-spacing: 2px;
-            color: var(--primary);
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        /* ── PROGRESS BAR ── */
-        #progressBar {
-            display: none;
-            width: 100%;
-            margin-top: 12px;
-        }
-
-        .progress-track {
-            height: 3px;
-            background: var(--border);
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            border-radius: 2px;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px rgba(0,200,255,0.5);
-        }
-
-        .progress-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 2px;
-            color: var(--muted);
-            text-align: right;
-            margin-top: 4px;
+        .ld-text {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem; letter-spacing: 2px;
+            color: var(--text2); text-transform: uppercase;
         }
 
         /* ── DIVIDER ── */
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
-            margin: 20px 0;
-        }
-
-        /* ── CHECKBOXES ── */
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-family: 'Share Tech Mono', monospace;
-            letter-spacing: 1px;
-            user-select: none;
-            flex: 1;
-            justify-content: center;
-            transition: border-color 0.2s, background 0.2s;
-            background: rgba(0,20,50,0.5);
-        }
-
-        .checkbox-container:hover { border-color: var(--primary); }
-        .checkbox-container:has(input:checked) {
-            border-color: var(--accent);
-            background: rgba(0,50,40,0.3);
-        }
-
-        .checkbox-container input {
-            width: 16px; height: 16px;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
-
-        /* ── CHART ── */
-        .chart-wrapper {
-            background: linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chart-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        }
-
-        .chart-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .chart-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            color: var(--accent);
-            text-transform: uppercase;
-        }
-
-        .chart-stats {
-            display: flex;
-            gap: 20px;
-        }
-
-        .chart-stat {
-            text-align: right;
-        }
-
-        .chart-stat-value {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1.1rem;
-            color: var(--primary);
-        }
-
-        .chart-stat-label {
-            font-size: 0.65rem;
-            letter-spacing: 1px;
-            color: var(--muted);
-            text-transform: uppercase;
-        }
-
-        .chart-container {
-            height: 55vh;
-            min-height: 380px;
-            position: relative;
-        }
+        .divider { height: 1px; background: var(--border); margin: 24px 0; }
 
         /* ── BADGES ── */
-        #activeHighlights {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 16px;
-        }
-
+        #activeHighlights { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 6px 12px 6px 14px;
-            border-radius: 2px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            border: 1px solid currentColor;
-            animation: badge-in 0.3s ease;
+            padding: 6px 10px 6px 13px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            animation: bin .25s ease;
         }
-
-        @keyframes badge-in {
-            from { opacity: 0; transform: translateY(-8px) scale(0.9); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .badge-close {
+        @keyframes bin { from { opacity:0; transform:scale(.88); } to { opacity:1; transform:scale(1); } }
+        .badge-x {
             cursor: pointer;
-            width: 20px; height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 18px; height: 18px;
             border-radius: 50%;
-            background: rgba(0,0,0,0.4);
-            font-size: 0.7rem;
-            transition: background 0.2s;
+            background: rgba(0,0,0,.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: .65rem;
+            transition: background .15s;
+            flex-shrink: 0;
         }
+        .badge-x:hover { background: rgba(220,50,50,.5); }
 
-        .badge-close:hover { background: rgba(255,30,60,0.5); }
+        /* ── EXPORT ── */
+        #exportControls { display: none; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+        #exportControls .btn { flex: 1; min-width: 160px; }
 
-        /* ── EXPORT CONTROLS ── */
-        #exportControls {
-            display: none;
-            gap: 10px;
-            margin-top: 16px;
-            flex-wrap: wrap;
+        /* ── STATS ── */
+        .stats-row { display: none; gap: 2px; margin-bottom: 20px; }
+        .stat-box { flex: 1; background: var(--surface2); border-radius: var(--radius); padding: 14px 18px; min-width: 90px; }
+        .stat-val { font-family: 'DM Mono', monospace; font-size: 1.4rem; font-weight: 500; color: var(--white); line-height: 1; }
+        .stat-lbl { font-size: 0.72rem; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
+
+        /* ── HEATMAP ── */
+        .heatmap-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .heatmap-table {
+            border-collapse: separate;
+            border-spacing: 3px;
+            min-width: 560px;
+            width: 100%;
         }
+        .heatmap-table thead th {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--text3); padding: 0 4px 10px; text-align: center; font-weight: 400;
+        }
+        .heatmap-table thead th:first-child { text-align: left; }
 
-        #exportControls button { flex: 1; min-width: 150px; }
-
-        /* ── TABLES ── */
-        .summary-panel {
-            background: linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%);
-            border: 1px solid var(--border);
+        .hm-cell {
             border-radius: 4px;
-            padding: 24px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .summary-panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
-        }
-
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+            height: 56px;
             text-align: center;
-            font-size: 0.85rem;
-            min-width: 600px;
+            vertical-align: middle;
+            transition: transform .15s, box-shadow .15s;
+            position: relative;
+            cursor: default;
+        }
+        .hm-cell:hover { transform: scale(1.05); z-index: 5; box-shadow: 0 6px 20px rgba(0,0,0,.6); }
+
+        .hm-count {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.88rem; font-weight: 500; line-height: 1;
+        }
+        .hm-players {
+            margin-top: 3px; font-size: 0.58rem; line-height: 1.3;
+            overflow: hidden; max-height: 26px; padding: 0 3px;
+        }
+        .gal-lbl {
+            font-family: 'DM Mono', monospace; font-size: 0.78rem;
+            color: var(--text2); white-space: nowrap; padding-right: 10px; letter-spacing: 1px;
         }
 
-        th {
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            background: rgba(0,30,80,0.6);
-            color: var(--accent);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            font-weight: normal;
+        .hm-legend {
+            display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap;
+        }
+        .hm-legend-lbl { font-size: .72rem; color: var(--text3); font-family: 'DM Mono', monospace; }
+        .hm-legend-bar {
+            flex: 1; min-width: 80px; max-width: 220px; height: 7px; border-radius: 4px;
+            background: linear-gradient(90deg,#1e2a1a,#2e5c28,#4caf78,#a0d44a,#e8c020,#e87020,#e04040);
         }
 
-        td {
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.9rem;
-            color: var(--text);
+        /* ── DATA TABLES ── */
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table.dt {
+            width: 100%; border-collapse: collapse;
+            font-size: 0.88rem; min-width: 560px;
         }
-
-        tr:nth-child(even) td { background: rgba(0,20,50,0.3); }
-        tr:hover td { background: rgba(0,80,160,0.15); }
-
-        .galaxy-col {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-            color: var(--primary);
-            background: rgba(0,30,80,0.5) !important;
-            width: 70px;
-            white-space: nowrap;
+        table.dt th {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--text3); font-weight: 400;
+            padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left;
         }
-
-        .player-item {
-            font-size: 0.8rem;
-            padding: 4px 0;
-            border-bottom: 1px dashed var(--border);
-            color: #ccc;
-            font-family: 'Rajdhani', sans-serif;
+        table.dt th.c { text-align: center; }
+        table.dt td {
+            padding: 10px 14px; border-bottom: 1px solid var(--border);
+            color: var(--text); vertical-align: top;
         }
-        .player-item:last-child { border-bottom: none; }
+        table.dt td.c { text-align: center; }
+        table.dt tr:last-child td { border-bottom: none; }
+        table.dt tr:hover td { background: var(--surface2); }
 
-        .scrollable-list {
-            max-height: 80px;
-            overflow-y: auto;
-            font-size: 0.78rem;
-            color: var(--muted);
-            line-height: 1.8;
-            padding-right: 4px;
-            font-family: 'Share Tech Mono', monospace;
+        .gal-tag { font-family: 'DM Mono', monospace; font-size: .8rem; letter-spacing: 1px; color: var(--amber); }
+        .num { font-family: 'DM Mono', monospace; font-size: .85rem; }
+        .num-total { font-family: 'DM Mono', monospace; font-size: .88rem; color: var(--white); font-weight: 500; }
+
+        .slots-list {
+            font-family: 'DM Mono', monospace; font-size: .75rem;
+            color: var(--text2); max-height: 72px; overflow-y: auto; line-height: 1.8;
         }
+        .slots-list::-webkit-scrollbar { width: 3px; }
+        .slots-list::-webkit-scrollbar-thumb { background: var(--border2); }
+        .slot-tot { font-family: 'DM Mono', monospace; font-size: .72rem; color: var(--green); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); }
 
-        .scrollable-list::-webkit-scrollbar { width: 3px; }
-        .scrollable-list::-webkit-scrollbar-track { background: var(--border); }
-        .scrollable-list::-webkit-scrollbar-thumb { background: var(--primary-dim); }
+        .ply-entry { font-size: .83rem; padding: 3px 0; color: var(--text2); border-bottom: 1px dashed var(--border); }
+        .ply-entry:last-child { border-bottom: none; }
+        .ply-name { color: var(--text); font-weight: 500; }
+        .ply-tag { font-family: 'DM Mono', monospace; font-size: .78rem; }
 
-        .slot-count {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--success);
-            margin-top: 6px;
-            border-top: 1px solid var(--border);
-            padding-top: 5px;
-            letter-spacing: 1px;
-        }
-
-        .total-cell {
-            font-family: 'Share Tech Mono', monospace;
-            color: var(--success);
-            font-size: 0.85rem;
-        }
-
-        /* ── SCAN LINE EFFECT ── */
-        @keyframes scanline {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
-        }
-
-        .scanline-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(transparent, rgba(0,200,255,0.05), transparent);
-            animation: scanline 6s linear infinite;
-            pointer-events: none;
-            z-index: 999;
-        }
-
-        /* ── STATUS CHIP ── */
-        .status-online {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 2px;
-            color: var(--success);
-        }
-
-        .status-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--success);
-            box-shadow: 0 0 6px var(--success);
-            animation: pulse-dot 2s infinite;
-        }
-
-        /* ── SUBTITLE BAR ── */
-        .subtitle-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 8px;
-            padding: 0 2px;
-        }
-
-        /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
-            .app-wrapper { padding: 12px 10px 30px; }
-            .logo { font-size: 1.2rem; }
-            .panel, .summary-panel, .chart-wrapper { padding: 16px; }
-            .chart-stats { display: none; }
+            .app { padding: 0 14px 40px; }
+            header { padding: 24px 0 20px; }
+            .card { padding: 18px; }
+            .stats-row { flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
+<div class="app">
 
-<div class="scanline-overlay"></div>
-
-<div class="app-wrapper">
-
-    <!-- HEADER -->
-    <header class="site-header">
-        <div class="logo">OGame Universe Tracker</div>
-        <div class="logo-sub">Sistema di Ricognizione Strategica · v2.0</div>
+    <header>
+        <div>
+            <div class="logo">OGame <span>Universe</span> Tracker</div>
+            <div class="logo-tagline">Sistema di ricognizione strategica</div>
+        </div>
+        <div class="header-status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">In attesa</span>
+        </div>
     </header>
 
-    <!-- LOAD PANEL -->
-    <div class="panel" id="loadPanel">
-        <div class="panel-corner-br"></div>
-        <div class="panel-title">⬡ Connessione Universo</div>
-
-        <div class="controls" id="loadSection">
-            <div class="input-group">
+    <!-- LOAD -->
+    <div class="card">
+        <div class="card-label">Connessione universo</div>
+        <div class="controls">
+            <div class="field">
                 <label for="countrySelect">Community</label>
                 <select id="countrySelect">
                     <option value="it" selected>Italia (IT)</option>
@@ -719,780 +402,425 @@
                     <option value="es">Spagna (ES)</option>
                 </select>
             </div>
-
-            <div class="input-group">
+            <div class="field">
                 <label for="universeSelect">Universo</label>
                 <select id="universeSelect">
-                    <option value="">Seleziona community...</option>
+                    <option value="">Seleziona una community...</option>
                 </select>
             </div>
-
-            <div class="input-group" style="flex: 0 0 auto;">
+            <div class="field" style="flex:0 0 auto">
                 <label>&nbsp;</label>
-                <button id="loadBtn"><span>▶ Scarica Dati</span></button>
+                <button id="loadBtn" class="btn btn-primary">Scarica dati</button>
             </div>
         </div>
 
-        <div id="progressBar">
-            <div class="progress-track">
-                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-            </div>
-            <div class="progress-label" id="progressLabel">INIZIALIZZAZIONE...</div>
+        <div class="progress-wrap" id="progressWrap">
+            <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+            <div class="progress-lbl" id="progressLbl">Inizializzazione…</div>
         </div>
-
-        <div id="loadingMsg">
+        <div class="loading-bar" id="loadingMsg">
             <div class="loading-inner">
-                <div class="loading-dots">
-                    <span></span><span></span><span></span>
-                </div>
-                <div class="loading-text">SINCRONIZZAZIONE DATI IN CORSO</div>
+                <div class="ld-dots"><span></span><span></span><span></span></div>
+                <div class="ld-text">Sincronizzazione dati in corso</div>
             </div>
         </div>
 
-        <div class="divider" id="dividerLine" style="display: none;"></div>
-
-        <div class="controls" id="actionSection" style="display: none;">
-            <div class="input-group">
-                <label for="playerName">Cerca Giocatore</label>
-                <div class="flex-row">
-                    <input type="text" id="playerName" placeholder="Es. Legolas" autocomplete="off">
-                    <button id="addPlayerBtn" class="btn-accent btn-icon"><span>+</span></button>
+        <div id="actionSection" style="display:none">
+            <div class="divider"></div>
+            <div class="controls" style="margin-bottom:14px">
+                <div class="field">
+                    <label for="playerName">Cerca giocatore</label>
+                    <div class="row-inp">
+                        <input type="text" id="playerName" placeholder="Es. Legolas" autocomplete="off">
+                        <button id="addPlayerBtn" class="btn btn-ghost btn-icon">+</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="allianceInput">Cerca alleanza</label>
+                    <div class="row-inp">
+                        <input type="text" id="allianceInput" list="allianceList" placeholder="Es. [TAG] o Nome">
+                        <datalist id="allianceList"></datalist>
+                        <button id="addAllianceBtn" class="btn btn-ghost btn-icon">+</button>
+                    </div>
+                </div>
+                <div class="field" style="flex:0 0 auto">
+                    <label>&nbsp;</label>
+                    <div class="chips">
+                        <label class="chip"><input type="checkbox" id="toggleFreeSlots"> Slot 8/15</label>
+                        <label class="chip"><input type="checkbox" id="toggleDensity" checked> Densità</label>
+                    </div>
                 </div>
             </div>
-
-            <div class="input-group">
-                <label for="allianceInput">Cerca Alleanza</label>
-                <div class="flex-row">
-                    <input type="text" id="allianceInput" list="allianceList" placeholder="Es. TAG o Nome">
-                    <datalist id="allianceList"></datalist>
-                    <button id="addAllianceBtn" class="btn-accent btn-icon"><span>+</span></button>
-                </div>
+            <div id="activeHighlights"></div>
+            <div id="exportControls">
+                <button id="copyDataBtn" class="btn btn-ghost">📋 Copia posizioni</button>
+                <button id="exportCsvBtn" class="btn btn-ghost">⬇ Scarica CSV</button>
             </div>
-
-            <div class="input-group" style="flex-direction: row; flex-wrap: wrap; gap: 8px;">
-                <label class="checkbox-container">
-                    <input type="checkbox" id="toggleFreeSlots">
-                    <span>Slot 8/15</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="toggleBackground" checked>
-                    <span>Sfondo Mappa</span>
-                </label>
-            </div>
-        </div>
-
-        <div id="activeHighlights"></div>
-
-        <div id="exportControls">
-            <button id="copyDataBtn" class="btn-export"><span>📋 Copia Elenco Posizioni</span></button>
-            <button id="exportCsvBtn" class="btn-export"><span>⬇ Scarica CSV</span></button>
         </div>
     </div>
 
-    <!-- CHART -->
-    <div class="chart-wrapper" id="chartWrapper">
-        <div class="chart-header">
-            <div class="chart-title">◈ Mappa Universo</div>
-            <div class="chart-stats" id="chartStats" style="display:none;">
-                <div class="chart-stat">
-                    <div class="chart-stat-value" id="statPlanets">—</div>
-                    <div class="chart-stat-label">Pianeti</div>
-                </div>
-                <div class="chart-stat">
-                    <div class="chart-stat-value" id="statPlayers">—</div>
-                    <div class="chart-stat-label">Giocatori</div>
-                </div>
-                <div class="chart-stat">
-                    <div class="chart-stat-value" id="statGalaxies">—</div>
-                    <div class="chart-stat-label">Galassie</div>
-                </div>
-            </div>
+    <!-- MAP -->
+    <div class="card" id="mapCard" style="display:none">
+        <div class="card-label">Mappa universo — densità pianeti</div>
+        <div class="stats-row" id="statsRow">
+            <div class="stat-box"><div class="stat-val" id="statPlanets">—</div><div class="stat-lbl">Pianeti</div></div>
+            <div class="stat-box"><div class="stat-val" id="statPlayers">—</div><div class="stat-lbl">Giocatori</div></div>
+            <div class="stat-box"><div class="stat-val" id="statGalaxies">—</div><div class="stat-lbl">Galassie</div></div>
+            <div class="stat-box"><div class="stat-val" id="statLayers">0</div><div class="stat-lbl">Layer attivi</div></div>
         </div>
-        <div class="chart-container">
-            <canvas id="universeMap"></canvas>
+        <div class="heatmap-scroll">
+            <table class="heatmap-table" id="heatmapTable"></table>
+        </div>
+        <div class="hm-legend">
+            <span class="hm-legend-lbl">Vuoto</span>
+            <div class="hm-legend-bar"></div>
+            <span class="hm-legend-lbl">Affollato</span>
         </div>
     </div>
 
-    <!-- SUMMARY PANELS -->
-    <div class="summary-panel" id="allianceSummaryPanel" style="display: none;">
-        <h2>◈ Dettaglio Alleanze</h2>
-        <p style="color: var(--muted); font-size: 0.78rem; letter-spacing: 1px; margin-bottom: 14px; font-family: 'Share Tech Mono', monospace;">
-            DISTRIBUZIONE GIOCATORI PER SETTORE
-        </p>
-        <div class="table-responsive" id="allianceTableContainer"></div>
+    <!-- ALLIANCE DETAIL -->
+    <div class="card" id="allianceSummaryPanel" style="display:none">
+        <div class="card-label">Distribuzione alleanze per settore</div>
+        <div class="table-scroll" id="allianceTableContainer"></div>
     </div>
 
-    <div class="summary-panel" id="summaryPanel" style="display: none;">
-        <h2>◈ Densità Pianeti (Globale)</h2>
-        <div class="table-responsive" id="tableContainer"></div>
+    <!-- DENSITY TABLE -->
+    <div class="card" id="summaryPanel" style="display:none">
+        <div class="card-label">Densità pianeti — riepilogo globale</div>
+        <div class="table-scroll" id="tableContainer"></div>
     </div>
 
-    <div class="summary-panel" id="freeSlotsPanel" style="display: none;">
-        <h2>◈ Posizioni Strategiche Libere (Slot 8 / 15)</h2>
-        <div class="table-responsive" id="freeSlotsContainer"></div>
+    <!-- FREE SLOTS -->
+    <div class="card" id="freeSlotsPanel" style="display:none">
+        <div class="card-label">Posizioni strategiche libere (slot 8 e 15)</div>
+        <div class="table-scroll" id="freeSlotsContainer"></div>
     </div>
 
 </div>
-
 <script>
-    // ─── CONFIG ───────────────────────────────────────────────────────────────
-    const proxyBaseUrl = '/.netlify/functions/proxy?url=';
+const proxyBaseUrl = '/.netlify/functions/proxy?url=';
+let allPlanetsList = [], playersMap = {}, alliancesMap = {}, occupiedPositions = new Set();
+let maxGalaxies = 9, activeLayers = [], colorIndex = 0;
+const cache = { density: null, slots: null, clear() { this.density=null; this.slots=null; } };
+const palette = ['#e85c8a','#4ec9a0','#f0b030','#9b72cf','#e87a30','#5cbae6','#a3cf72','#e05555','#72cfcf','#e8c850','#cf72a3','#72a3e8'];
+const $ = id => document.getElementById(id);
+const SECTORS = ['1–100','101–200','201–300','301–400','401–499'];
 
-    // ─── STATE ────────────────────────────────────────────────────────────────
-    let chartInstance      = null;
-    let baseDensityDataset = null;
-    let allPlanetsList     = [];
-    let playersMap         = {};
-    let alliancesMap       = {};
-    let occupiedPositions  = new Set();
-    let maxGalaxies        = 9;
-    let activeLayers       = [];
-    let colorIndex         = 0;
+function setProgress(pct, lbl) {
+    $('progressWrap').style.display = 'block';
+    $('progressFill').style.width = pct + '%';
+    $('progressLbl').textContent = lbl;
+}
 
-    // ─── MEMOIZATION CACHE ────────────────────────────────────────────────────
-    const cache = {
-        densitySummary: null,
-        freeSlots: null,
+async function fetchXML(url) {
+    const r = await fetch(proxyBaseUrl + encodeURIComponent(url));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return new DOMParser().parseFromString(await r.text(), 'text/xml');
+}
 
-        invalidate() {
-            this.densitySummary = null;
-            this.freeSlots = null;
-        }
-    };
-
-    // ─── PALETTE ──────────────────────────────────────────────────────────────
-    const colorPalette = [
-        'rgba(255, 80, 120, 1)',  'rgba(0, 200, 180, 1)',  'rgba(255, 200, 50, 1)',
-        'rgba(160, 80, 255, 1)',  'rgba(255, 130, 50, 1)', 'rgba(50, 220, 100, 1)',
-        'rgba(80, 180, 255, 1)',  'rgba(255, 80, 200, 1)', 'rgba(200, 255, 80, 1)',
-        'rgba(255, 160, 80, 1)',  'rgba(80, 255, 200, 1)', 'rgba(200, 80, 255, 1)'
-    ];
-
-    // ─── DOM REFS ─────────────────────────────────────────────────────────────
-    const $ = id => document.getElementById(id);
-    const countrySelect         = $('countrySelect');
-    const universeSelect        = $('universeSelect');
-    const loadBtn               = $('loadBtn');
-    const loadingMsg            = $('loadingMsg');
-    const progressBar           = $('progressBar');
-    const progressFill          = $('progressFill');
-    const progressLabel         = $('progressLabel');
-    const actionSection         = $('actionSection');
-    const dividerLine           = $('dividerLine');
-    const allianceList          = $('allianceList');
-    const toggleBackground      = $('toggleBackground');
-    const toggleFreeSlots       = $('toggleFreeSlots');
-    const summaryPanel          = $('summaryPanel');
-    const tableContainer        = $('tableContainer');
-    const allianceSummaryPanel  = $('allianceSummaryPanel');
-    const allianceTableContainer= $('allianceTableContainer');
-    const freeSlotsPanel        = $('freeSlotsPanel');
-    const freeSlotsContainer    = $('freeSlotsContainer');
-    const exportControls        = $('exportControls');
-    const copyDataBtn           = $('copyDataBtn');
-    const exportCsvBtn          = $('exportCsvBtn');
-    const chartStats            = $('chartStats');
-    const statPlanets           = $('statPlanets');
-    const statPlayers           = $('statPlayers');
-    const statGalaxies          = $('statGalaxies');
-
-    // ─── PROGRESS HELPER ──────────────────────────────────────────────────────
-    function setProgress(pct, label) {
-        progressBar.style.display = 'block';
-        progressFill.style.width = pct + '%';
-        progressLabel.textContent = label;
-    }
-
-    // ─── FETCH XML (with cache-busting minimal) ───────────────────────────────
-    async function fetchXML(targetUrl) {
-        const response = await fetch(proxyBaseUrl + encodeURIComponent(targetUrl));
-        if (!response.ok) throw new Error('Errore di rete: ' + response.status);
-        const text = await response.text();
-        return new DOMParser().parseFromString(text, 'text/xml');
-    }
-
-    // ─── LOAD UNIVERSES ───────────────────────────────────────────────────────
-    async function loadUniverses() {
-        const country = countrySelect.value;
-        universeSelect.innerHTML = '<option value="">Caricamento...</option>';
-        loadBtn.disabled = true;
-
-        try {
-            const xmlDoc = await fetchXML(`https://s269-${country}.ogame.gameforge.com/api/universes.xml`);
-            const universes = xmlDoc.getElementsByTagName('universe');
-
-            universeSelect.innerHTML = '';
-
-            // Build option list first, then fetch names in parallel (non-blocking)
-            const optionMap = {};
-            for (let i = 0; i < universes.length; i++) {
-                const id   = universes[i].getAttribute('id');
-                const href = universes[i].getAttribute('href');
-                const opt  = document.createElement('option');
-                opt.value = href;
-                opt.text  = `Universo ${id}`;
-                universeSelect.appendChild(opt);
-                optionMap[id] = { href, opt };
-            }
-            loadBtn.disabled = false;
-
-            // Fire-and-forget parallel name enrichment
-            Object.entries(optionMap).forEach(([id, { href, opt }]) => {
-                fetchXML(`${href}/api/serverData.xml`).then(xml => {
-                    const nameNode = xml.getElementsByTagName('name')[0];
-                    opt.text = nameNode
-                        ? `Universo ${id} (${nameNode.textContent})`
-                        : `Universo ${id}`;
-                }).catch(() => {});
-            });
-
-        } catch (e) {
-            universeSelect.innerHTML = '<option value="">Errore API</option>';
-        }
-    }
-
-    countrySelect.addEventListener('change', loadUniverses);
-    window.addEventListener('DOMContentLoaded', loadUniverses);
-
-    // ─── MAIN DATA LOAD ───────────────────────────────────────────────────────
-    loadBtn.addEventListener('click', async () => {
-        const universeUrl = universeSelect.value;
-        if (!universeUrl) return;
-
-        loadingMsg.style.display = 'block';
-        loadBtn.disabled = true;
-        countrySelect.disabled = true;
-        universeSelect.disabled = true;
-        setProgress(5, 'AVVIO SINCRONIZZAZIONE...');
-
-        try {
-            // Parallel fetch of all 4 endpoints
-            setProgress(10, 'CONNESSIONE AI SERVER GAMEFORGE...');
-            const [universeXml, playersXml, alliancesXml, serverDataXml] = await Promise.all([
-                fetchXML(`${universeUrl}/api/universe.xml`),
-                fetchXML(`${universeUrl}/api/players.xml`),
-                fetchXML(`${universeUrl}/api/alliances.xml`),
-                fetchXML(`${universeUrl}/api/serverData.xml`)
-            ]);
-
-            setProgress(50, 'PARSING CONFIGURAZIONE SERVER...');
-            const galaxyNode = serverDataXml.getElementsByTagName('galaxies')[0];
-            maxGalaxies = galaxyNode ? parseInt(galaxyNode.textContent, 10) : 9;
-
-            setProgress(60, 'INDICIZZAZIONE ALLEANZE...');
-            parseAlliances(alliancesXml);
-
-            setProgress(70, 'INDICIZZAZIONE GIOCATORI...');
-            parsePlayers(playersXml);
-
-            setProgress(80, 'MAPPATURA UNIVERSO...');
-            parseUniverseAndRenderBase(universeXml);
-
-            setProgress(95, 'RENDERING MAPPA...');
-
-            // Update UI stats
-            const uniquePlayers = new Set(allPlanetsList.map(p => p.playerId)).size;
-            statPlanets.textContent  = allPlanetsList.length.toLocaleString('it');
-            statPlayers.textContent  = uniquePlayers.toLocaleString('it');
-            statGalaxies.textContent = maxGalaxies;
-            chartStats.style.display = 'flex';
-
-            cache.invalidate();
-
-            dividerLine.style.display = 'block';
-            actionSection.style.display = 'flex';
-            summaryPanel.style.display = 'block';
-
-            activeLayers = [];
-            colorIndex = 0;
-            toggleBackground.checked = true;
-
-            renderHighlights();
-            updateChart();
-            generateDensitySummary();
-
-            if (toggleFreeSlots.checked) {
-                freeSlotsPanel.style.display = 'block';
-                generateFreeSlotsSummary();
-            }
-            renderAllianceSummaries();
-
-            setProgress(100, 'SINCRONIZZAZIONE COMPLETATA');
-            setTimeout(() => { progressBar.style.display = 'none'; }, 1500);
-
-            loadBtn.innerHTML = '<span>✓ AGGIORNATO</span>';
-            setTimeout(() => { loadBtn.innerHTML = '<span>▶ Ricarica Dati</span>'; }, 3000);
-
-        } catch (err) {
-            alert('Errore nello scaricamento dei dati XML.');
-            console.error(err);
-            progressBar.style.display = 'none';
-        } finally {
-            loadingMsg.style.display = 'none';
-            loadBtn.disabled = false;
-            countrySelect.disabled = false;
-            universeSelect.disabled = false;
-        }
-    });
-
-    // ─── PARSE ALLIANCES ──────────────────────────────────────────────────────
-    function parseAlliances(xmlDoc) {
-        alliancesMap = {};
-        allianceList.innerHTML = '';
-        const alliances = xmlDoc.getElementsByTagName('alliance');
-        const fragment  = document.createDocumentFragment();
-
-        for (let i = 0; i < alliances.length; i++) {
-            const id   = alliances[i].getAttribute('id');
-            const tag  = alliances[i].getAttribute('tag');
-            const name = alliances[i].getAttribute('name');
-            alliancesMap[id] = { tag, name };
+async function loadUniverses() {
+    const country = $('countrySelect').value;
+    $('universeSelect').innerHTML = '<option value="">Caricamento...</option>';
+    $('loadBtn').disabled = true;
+    try {
+        const xml = await fetchXML(`https://s269-${country}.ogame.gameforge.com/api/universes.xml`);
+        const us = xml.getElementsByTagName('universe');
+        $('universeSelect').innerHTML = '';
+        const om = {};
+        for (let i = 0; i < us.length; i++) {
+            const id = us[i].getAttribute('id'), href = us[i].getAttribute('href');
             const opt = document.createElement('option');
-            opt.value = `[${tag}] ${name}`;
-            fragment.appendChild(opt);
+            opt.value = href; opt.text = `Universo ${id}`;
+            $('universeSelect').appendChild(opt);
+            om[id] = { href, opt };
         }
-        allianceList.appendChild(fragment);
+        $('loadBtn').disabled = false;
+        Object.entries(om).forEach(([id,{href,opt}]) =>
+            fetchXML(`${href}/api/serverData.xml`).then(x => {
+                const n = x.getElementsByTagName('name')[0];
+                opt.text = n ? `Universo ${id} (${n.textContent})` : `Universo ${id}`;
+            }).catch(()=>{})
+        );
+    } catch { $('universeSelect').innerHTML = '<option value="">Errore API</option>'; }
+}
+$('countrySelect').addEventListener('change', loadUniverses);
+window.addEventListener('DOMContentLoaded', loadUniverses);
+
+$('loadBtn').addEventListener('click', async () => {
+    const url = $('universeSelect').value;
+    if (!url) return;
+    $('loadingMsg').style.display = 'block';
+    $('loadBtn').disabled = true;
+    $('countrySelect').disabled = true;
+    $('universeSelect').disabled = true;
+    setProgress(5, 'Avvio connessione…');
+    try {
+        setProgress(10, 'Download XML in parallelo…');
+        const [uXml,pXml,aXml,sXml] = await Promise.all([
+            fetchXML(`${url}/api/universe.xml`),
+            fetchXML(`${url}/api/players.xml`),
+            fetchXML(`${url}/api/alliances.xml`),
+            fetchXML(`${url}/api/serverData.xml`)
+        ]);
+        setProgress(50, 'Parsing server…');
+        const gn = sXml.getElementsByTagName('galaxies')[0];
+        maxGalaxies = gn ? +gn.textContent : 9;
+        setProgress(60, 'Indicizzazione alleanze…');
+        parseAlliances(aXml);
+        setProgress(70, 'Indicizzazione giocatori…');
+        parsePlayers(pXml);
+        setProgress(80, 'Mappatura universo…');
+        parseUniverse(uXml);
+        cache.clear();
+        const uniq = new Set(allPlanetsList.map(p=>p.playerId)).size;
+        $('statPlanets').textContent  = allPlanetsList.length.toLocaleString('it');
+        $('statPlayers').textContent  = uniq.toLocaleString('it');
+        $('statGalaxies').textContent = maxGalaxies;
+        $('statLayers').textContent   = '0';
+        $('statsRow').style.display   = 'flex';
+        activeLayers = []; colorIndex = 0;
+        $('toggleDensity').checked = true;
+        $('actionSection').style.display = 'block';
+        $('mapCard').style.display = 'block';
+        $('summaryPanel').style.display = 'block';
+        setProgress(95, 'Rendering…');
+        renderHeatmap(); generateDensitySummary(); renderHighlights(); renderAllianceSummaries();
+        if ($('toggleFreeSlots').checked) { $('freeSlotsPanel').style.display='block'; generateFreeSlotsSummary(); }
+        setProgress(100, 'Completato'); setTimeout(()=>{ $('progressWrap').style.display='none'; },1400);
+        $('statusDot').classList.add('on'); $('statusText').textContent = 'Connesso';
+        $('loadBtn').textContent = '✓ Aggiornato';
+        setTimeout(()=>{ $('loadBtn').textContent='Ricarica dati'; },3000);
+    } catch(e) {
+        alert('Errore nello scaricamento dati XML.'); console.error(e);
+        $('progressWrap').style.display='none';
+    } finally {
+        $('loadingMsg').style.display='none';
+        $('loadBtn').disabled=false; $('countrySelect').disabled=false; $('universeSelect').disabled=false;
     }
+});
 
-    // ─── PLAYER STATUS ────────────────────────────────────────────────────────
-    const statusMap = { v: 'Vacanza', i: 'Inattivo', I: 'Inattivo', b: 'Bannato', o: 'Fuorilegge', a: 'Admin' };
-
-    function getReadableStatus(s) {
-        if (!s) return 'Attivo';
-        const labels = [];
-        for (const [k, v] of Object.entries(statusMap)) {
-            if (s.includes(k)) labels.push(v);
-        }
-        return labels.length ? labels.join(', ') : 'Sconosciuto';
+function parseAlliances(xml) {
+    alliancesMap = {};
+    const f = document.createDocumentFragment();
+    const ns = xml.getElementsByTagName('alliance');
+    for (let i=0;i<ns.length;i++) {
+        const id=ns[i].getAttribute('id'), tag=ns[i].getAttribute('tag'), name=ns[i].getAttribute('name');
+        alliancesMap[id]={tag,name};
+        const o=document.createElement('option'); o.value=`[${tag}] ${name}`; f.appendChild(o);
     }
-
-    // ─── PARSE PLAYERS ────────────────────────────────────────────────────────
-    function parsePlayers(xmlDoc) {
-        playersMap = {};
-        const players = xmlDoc.getElementsByTagName('player');
-        for (let i = 0; i < players.length; i++) {
-            const p = players[i];
-            const id = p.getAttribute('id');
-            const name = p.getAttribute('name');
-            playersMap[id] = {
-                name,
-                nameLower:   name.toLowerCase(),
-                allianceId:  p.getAttribute('alliance'),
-                statusText:  getReadableStatus(p.getAttribute('status'))
-            };
-        }
+    $('allianceList').innerHTML=''; $('allianceList').appendChild(f);
+}
+const SM = {v:'Vacanza',i:'Inattivo',I:'Inattivo',b:'Bannato',o:'Fuorilegge',a:'Admin'};
+function readStatus(s) {
+    if(!s) return 'Attivo';
+    const l=[];
+    for(const [k,v] of Object.entries(SM)) if(s.includes(k)) l.push(v);
+    return l.length?l.join(', '):'Sconosciuto';
+}
+function parsePlayers(xml) {
+    playersMap={};
+    const ns=xml.getElementsByTagName('player');
+    for(let i=0;i<ns.length;i++){
+        const id=ns[i].getAttribute('id'), name=ns[i].getAttribute('name');
+        playersMap[id]={name,nameLower:name.toLowerCase(),allianceId:ns[i].getAttribute('alliance'),statusText:readStatus(ns[i].getAttribute('status'))};
     }
-
-    // ─── PARSE UNIVERSE ───────────────────────────────────────────────────────
-    function parseUniverseAndRenderBase(xmlDoc) {
-        const planets    = xmlDoc.getElementsByTagName('planet');
-        const densityMap = {};
-        allPlanetsList   = [];
-        occupiedPositions.clear();
-
-        for (let i = 0; i < planets.length; i++) {
-            const coords    = planets[i].getAttribute('coords');
-            const playerId  = planets[i].getAttribute('player');
-            if (!coords) continue;
-
-            const parts   = coords.split(':');
-            const galaxy  = +parts[0];
-            const system  = +parts[1];
-            const pos     = +parts[2];
-            if (galaxy > maxGalaxies) continue;
-
-            allPlanetsList.push({ g: galaxy, s: system, p: pos, playerId });
-            occupiedPositions.add(`${galaxy}-${system}-${pos}`);
-
-            const key = `${galaxy}-${system}`;
-            if (!densityMap[key]) densityMap[key] = { g: galaxy, s: system, count: 0 };
-            densityMap[key].count++;
-        }
-
-        const universeDataArray = Object.values(densityMap).map(item => ({
-            x: item.s,
-            y: item.g,
-            r: Math.max(2, item.count * 1.1)
-        }));
-
-        baseDensityDataset = {
-            label: 'Densità Universo',
-            data:  universeDataArray,
-            backgroundColor: 'rgba(0, 120, 200, 0.18)',
-            borderColor:     'rgba(0, 170, 255, 0.35)',
-            borderWidth: 1,
-            hidden: false
-        };
-
-        initChart();
+}
+function parseUniverse(xml) {
+    allPlanetsList=[]; occupiedPositions.clear();
+    const ps=xml.getElementsByTagName('planet');
+    for(let i=0;i<ps.length;i++){
+        const c=ps[i].getAttribute('coords'), pid=ps[i].getAttribute('player');
+        if(!c) continue;
+        const [g,s,p]=c.split(':').map(Number);
+        if(g>maxGalaxies) continue;
+        allPlanetsList.push({g,s,p,playerId:pid});
+        occupiedPositions.add(`${g}-${s}-${p}`);
     }
+}
 
-    // ─── FREE SLOTS TABLE (memoized) ──────────────────────────────────────────
-    function generateFreeSlotsSummary() {
-        if (cache.freeSlots) { freeSlotsContainer.innerHTML = cache.freeSlots; return; }
+function secIdx(s) { if(s<=100)return 0; if(s<=200)return 1; if(s<=300)return 2; if(s<=400)return 3; return 4; }
 
-        const rows = [];
-        for (let g = 1; g <= maxGalaxies; g++) {
-            const free8 = [], free15 = [];
-            for (let s = 1; s <= 499; s++) {
-                if (!occupiedPositions.has(`${g}-${s}-8`))  free8.push(s);
-                if (!occupiedPositions.has(`${g}-${s}-15`)) free15.push(s);
-            }
-            rows.push(`
-                <tr>
-                    <td class="galaxy-col">G${g}</td>
-                    <td style="text-align:left;vertical-align:top;width:42%">
-                        <div class="scrollable-list">${free8.length ? free8.join(', ') : '<span style="color:var(--danger)">NESSUNA</span>'}</div>
-                        <div class="slot-count">TOT: ${free8.length}</div>
-                    </td>
-                    <td style="text-align:left;vertical-align:top;width:42%">
-                        <div class="scrollable-list">${free15.length ? free15.join(', ') : '<span style="color:var(--danger)">NESSUNA</span>'}</div>
-                        <div class="slot-count">TOT: ${free15.length}</div>
-                    </td>
-                </tr>`);
-        }
+function densityColor(count,max) {
+    if(!max||!count) return '#1a1a18';
+    const t=Math.min(count/max,1);
+    const stops=[[30,45,26],[46,91,40],[76,175,120],[160,212,74],[232,192,32],[232,122,32],[224,64,64]];
+    const pos=t*(stops.length-1), i=Math.floor(pos), f=pos-i;
+    const a=stops[Math.min(i,stops.length-1)], b=stops[Math.min(i+1,stops.length-1)];
+    return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;
+}
+function textCol(count,max) { return (!max||!count)? '#5a5752': (count/max>0.35?'#fff':'#9e9a94'); }
 
-        const html = `<table>
-            <thead><tr>
-                <th>GAL.</th>
-                <th>SLOT 8 LIBERI (SISTEMI)</th>
-                <th>SLOT 15 LIBERI (SISTEMI)</th>
-            </tr></thead>
-            <tbody>${rows.join('')}</tbody>
-        </table>`;
+function renderHeatmap() {
+    const density={};
+    for(let g=1;g<=maxGalaxies;g++) density[g]=[0,0,0,0,0];
+    allPlanetsList.forEach(p=>{ if(p.g>=1&&p.g<=maxGalaxies) density[p.g][secIdx(p.s)]++; });
 
-        cache.freeSlots = html;
-        freeSlotsContainer.innerHTML = html;
-    }
-
-    toggleFreeSlots.addEventListener('change', e => {
-        if (e.target.checked && allPlanetsList.length > 0) {
-            freeSlotsPanel.style.display = 'block';
-            generateFreeSlotsSummary();
-        } else {
-            freeSlotsPanel.style.display = 'none';
-        }
-    });
-
-    // ─── DENSITY TABLE (memoized) ─────────────────────────────────────────────
-    function generateDensitySummary() {
-        if (cache.densitySummary) { tableContainer.innerHTML = cache.densitySummary; return; }
-
-        const ranges = {};
-        for (let g = 1; g <= maxGalaxies; g++) ranges[g] = [0, 0, 0, 0, 0];
-
-        for (let i = 0; i < allPlanetsList.length; i++) {
-            const { g, s } = allPlanetsList[i];
-            if (g < 1 || g > maxGalaxies) continue;
-            let idx = 0;
-            if      (s > 400) idx = 4;
-            else if (s > 300) idx = 3;
-            else if (s > 200) idx = 2;
-            else if (s > 100) idx = 1;
-            ranges[g][idx]++;
-        }
-
-        const rows = [];
-        for (let g = 1; g <= maxGalaxies; g++) {
-            const r = ranges[g];
-            const total = r[0]+r[1]+r[2]+r[3]+r[4];
-            rows.push(`<tr>
-                <td class="galaxy-col">G${g}</td>
-                ${r.map(v => `<td>${v.toLocaleString('it')}</td>`).join('')}
-                <td class="total-cell">${total.toLocaleString('it')}</td>
-            </tr>`);
-        }
-
-        const html = `<table>
-            <thead><tr>
-                <th>GAL.</th>
-                <th>SIS. 1-100</th><th>SIS. 101-200</th>
-                <th>SIS. 201-300</th><th>SIS. 301-400</th>
-                <th>SIS. 401-499</th><th>TOTALE</th>
-            </tr></thead>
-            <tbody>${rows.join('')}</tbody>
-        </table>`;
-
-        cache.densitySummary = html;
-        tableContainer.innerHTML = html;
-    }
-
-    // ─── ALLIANCE SUMMARY ─────────────────────────────────────────────────────
-    function renderAllianceSummaries() {
-        const allianceLayers = activeLayers.filter(l => l.type === 'alliance');
-        if (!allianceLayers.length) { allianceSummaryPanel.style.display = 'none'; return; }
-        allianceSummaryPanel.style.display = 'block';
-
-        const grid = {};
-        for (let g = 1; g <= maxGalaxies; g++) grid[g] = [[], [], [], [], []];
-
-        for (const layer of allianceLayers) {
-            for (const p of layer.dataset.data) {
-                const g = p.y, s = p.x;
-                if (g < 1 || g > maxGalaxies) continue;
-                let idx = 0;
-                if      (s > 400) idx = 4;
-                else if (s > 300) idx = 3;
-                else if (s > 200) idx = 2;
-                else if (s > 100) idx = 1;
-                grid[g][idx].push({ name: p.playerName, tag: layer.allianceTag, color: layer.color });
-            }
-        }
-
-        const rows = [];
-        for (let g = 1; g <= maxGalaxies; g++) {
-            let cells = `<td class="galaxy-col">G${g}</td>`;
-            for (let i = 0; i < 5; i++) {
-                const cp = grid[g][i];
-                if (!cp.length) { cells += '<td style="color:var(--muted)">—</td>'; continue; }
-                const counts = {};
-                cp.forEach(p => {
-                    const k = `${p.name}|||${p.tag}|||${p.color}`;
-                    counts[k] = (counts[k] || 0) + 1;
-                });
-                const items = Object.entries(counts).map(([k, n]) => {
-                    const [nm, tg, cl] = k.split('|||');
-                    return `<div class="player-item">
-                        <strong style="color:#fff">${nm}</strong> (${n})
-                        <strong style="color:${cl}">[${tg}]</strong>
-                    </div>`;
-                }).sort().join('');
-                cells += `<td style="vertical-align:top;text-align:left">${items}</td>`;
-            }
-            rows.push(`<tr>${cells}</tr>`);
-        }
-
-        allianceTableContainer.innerHTML = `<table>
-            <thead><tr>
-                <th>GAL.</th>
-                <th>SIS. 1-100</th><th>SIS. 101-200</th>
-                <th>SIS. 201-300</th><th>SIS. 301-400</th>
-                <th>SIS. 401-499</th>
-            </tr></thead>
-            <tbody>${rows.join('')}</tbody>
-        </table>`;
-    }
-
-    // ─── CHART ────────────────────────────────────────────────────────────────
-    function initChart() {
-        const ctx = $('universeMap').getContext('2d');
-        if (chartInstance) chartInstance.destroy();
-
-        chartInstance = new Chart(ctx, {
-            type: 'bubble',
-            data: { datasets: [baseDensityDataset] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: { duration: 600, easing: 'easeOutQuart' },
-                scales: {
-                    x: {
-                        title: { display: true, text: 'Sistema Solare (1–499)', color: 'rgba(0,200,255,0.6)', font: { family: 'Share Tech Mono', size: 11 } },
-                        min: 0, max: 500,
-                        ticks: { color: 'rgba(100,160,220,0.7)', font: { family: 'Share Tech Mono', size: 10 }, maxTicksLimit: 12 },
-                        grid: { color: 'rgba(0,100,200,0.08)' }
-                    },
-                    y: {
-                        title: { display: true, text: `Galassia (1–${maxGalaxies})`, color: 'rgba(0,255,200,0.6)', font: { family: 'Share Tech Mono', size: 11 } },
-                        min: 0, max: maxGalaxies + 1,
-                        reverse: true,
-                        ticks: { color: 'rgba(100,220,180,0.7)', stepSize: 1, font: { family: 'Share Tech Mono', size: 10 } },
-                        grid: { color: 'rgba(0,100,200,0.08)' }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(5,15,35,0.95)',
-                        borderColor: 'rgba(0,170,255,0.4)',
-                        borderWidth: 1,
-                        titleFont: { family: 'Share Tech Mono', size: 11 },
-                        bodyFont:  { family: 'Rajdhani', size: 13 },
-                        padding: 12,
-                        callbacks: {
-                            label(ctx) {
-                                if (ctx.datasetIndex === 0) {
-                                    const count = Math.round(ctx.raw.r / 1.1);
-                                    return ` [G${ctx.raw.y}:S${ctx.raw.x}] — ${count} pianeti`;
-                                }
-                                const raw = ctx.raw;
-                                const status = raw.playerStatus ? ` · ${raw.playerStatus}` : '';
-                                const pos    = raw.p ? `:${raw.p}` : '';
-                                return ` ${ctx.dataset.label} — ${raw.playerName || ''}${status} → [${raw.y}:${raw.x}${pos}]`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function updateChart() {
-        if (!chartInstance) return;
-        chartInstance.data.datasets = [baseDensityDataset, ...activeLayers.map(l => l.dataset)];
-        chartInstance.update('active');
-    }
-
-    toggleBackground.addEventListener('change', e => {
-        baseDensityDataset.hidden = !e.target.checked;
-        updateChart();
-    });
-
-    // ─── HIGHLIGHTS / BADGES ──────────────────────────────────────────────────
-    function renderHighlights() {
-        const container = $('activeHighlights');
-        container.innerHTML = '';
-        activeLayers.forEach((layer, i) => {
-            const badge = document.createElement('div');
-            badge.className = 'badge';
-            const rgb = layer.dataset.backgroundColor.replace('rgba(', '').split(',');
-            badge.style.color       = layer.dataset.backgroundColor;
-            badge.style.background  = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.08)`;
-            badge.innerHTML = `
-                <span>${layer.label}</span>
-                <div class="badge-close" onclick="removeHighlight(${i})">✕</div>
-            `;
-            container.appendChild(badge);
-        });
-        exportControls.style.display = activeLayers.length ? 'flex' : 'none';
-    }
-
-    window.removeHighlight = function(index) {
-        activeLayers.splice(index, 1);
-        renderHighlights();
-        updateChart();
-        renderAllianceSummaries();
-    };
-
-    function getNextColor() {
-        const c = colorPalette[colorIndex];
-        colorIndex = (colorIndex + 1) % colorPalette.length;
-        return c;
-    }
-
-    // ─── ADD PLAYER ───────────────────────────────────────────────────────────
-    $('addPlayerBtn').addEventListener('click', () => {
-        const inputVal = $('playerName').value.trim().toLowerCase();
-        if (!inputVal) return;
-
-        let targetId = null;
-        for (const [id, data] of Object.entries(playersMap)) {
-            if (data.nameLower === inputVal) { targetId = id; break; }
-        }
-        if (!targetId) return alert('Giocatore non trovato.');
-
-        const pData = playersMap[targetId];
-        const spots = allPlanetsList
-            .filter(p => p.playerId === targetId)
-            .map(p => ({ x: p.s, y: p.g, p: p.p, r: 9, playerName: pData.name, playerStatus: pData.statusText }));
-
-        if (!spots.length) return alert('Il giocatore non ha pianeti registrati.');
-
-        activeLayers.push({
-            type: 'player',
-            label: `PLY: ${pData.name}`,
-            allianceTag: '',
-            color: '',
-            dataset: {
-                label:           `Ply: ${pData.name}`,
-                data:            spots,
-                backgroundColor: getNextColor(),
-                borderColor:     'rgba(0,0,0,0.8)',
-                borderWidth:     2
-            }
-        });
-
-        $('playerName').value = '';
-        renderHighlights();
-        updateChart();
-    });
-
-    // ─── ADD ALLIANCE ─────────────────────────────────────────────────────────
-    $('addAllianceBtn').addEventListener('click', () => {
-        const inputVal = $('allianceInput').value.trim().toLowerCase();
-        if (!inputVal) return;
-
-        let targetId = null;
-        for (const [id, data] of Object.entries(alliancesMap)) {
-            const full = `[${data.tag}] ${data.name}`.toLowerCase();
-            if (full === inputVal || data.tag.toLowerCase() === inputVal || data.name.toLowerCase() === inputVal) {
-                targetId = id; break;
-            }
-        }
-        if (!targetId) return alert('Alleanza non trovata.');
-
-        const spots = [];
-        for (const p of allPlanetsList) {
-            const player = playersMap[p.playerId];
-            if (player?.allianceId === targetId) {
-                spots.push({ x: p.s, y: p.g, p: p.p, r: 7, playerName: player.name, playerStatus: player.statusText });
-            }
-        }
-        if (!spots.length) return alert('Nessun pianeta trovato per questa alleanza.');
-
-        const color = getNextColor();
-        const tag   = alliancesMap[targetId].tag;
-
-        activeLayers.push({
-            type: 'alliance',
-            label: `ALLY: [${tag}]`,
-            allianceTag: tag,
-            color,
-            dataset: {
-                label:           `Ally: [${tag}]`,
-                data:            spots,
-                backgroundColor: color,
-                borderColor:     'rgba(255,255,255,0.6)',
-                borderWidth:     1.5
-            }
-        });
-
-        $('allianceInput').value = '';
-        renderHighlights();
-        updateChart();
-        renderAllianceSummaries();
-    });
-
-    // ─── EXPORT ───────────────────────────────────────────────────────────────
-    function getExportData() {
-        const list = [];
-        for (const layer of activeLayers) {
-            for (const p of layer.dataset.data) {
-                list.push({ name: p.playerName, tag: layer.allianceTag, g: p.y, s: p.x, p: p.p, status: p.playerStatus });
-            }
-        }
-        return list.sort((a, b) => a.g - b.g || a.s - b.s || a.p - b.p);
-    }
-
-    copyDataBtn.addEventListener('click', () => {
-        const data = getExportData();
-        if (!data.length) return alert('Nessun dato da copiare.');
-        let text = 'Elenco Posizioni OGame\n' + '='.repeat(24) + '\n';
-        data.forEach(d => {
-            text += `${d.tag ? '['+d.tag+'] ' : ''}${d.name} -> [${d.g}:${d.s}:${d.p}] (${d.status})\n`;
-        });
-        navigator.clipboard.writeText(text).then(() => {
-            const orig = copyDataBtn.innerHTML;
-            copyDataBtn.innerHTML = '<span>✅ COPIATO!</span>';
-            setTimeout(() => { copyDataBtn.innerHTML = orig; }, 2000);
+    const hlGrid={};
+    for(let g=1;g<=maxGalaxies;g++) hlGrid[g]=[[],[],[],[],[]];
+    activeLayers.forEach(layer=>{
+        layer.dataset.forEach(p=>{
+            if(p.g>=1&&p.g<=maxGalaxies) hlGrid[p.g][secIdx(p.s)].push({name:p.playerName,color:layer.color,tag:layer.allianceTag});
         });
     });
 
-    exportCsvBtn.addEventListener('click', () => {
-        const data = getExportData();
-        if (!data.length) return alert('Nessun dato da esportare.');
-        let csv = 'Giocatore,Alleanza,Galassia,Sistema,Posizione,Coordinate,Stato\n';
-        data.forEach(d => {
-            csv += `"${d.name.replace(/"/g, '""')}","${d.tag || ''}",${d.g},${d.s},${d.p},"[${d.g}:${d.s}:${d.p}]","${d.status}"\n`;
-        });
-        const a = Object.assign(document.createElement('a'), {
-            href: URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })),
-            download: 'ogame_posizioni.csv'
-        });
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+    const showDensity = $('toggleDensity').checked;
+    const max = showDensity ? Math.max(...Object.values(density).flatMap(r=>r)) : 1;
+
+    let html='<thead><tr><th></th>';
+    SECTORS.forEach(s=>html+=`<th>${s}</th>`);
+    html+='</tr></thead><tbody>';
+
+    for(let g=1;g<=maxGalaxies;g++){
+        html+=`<tr><td class="gal-lbl">G${g}</td>`;
+        for(let si=0;si<5;si++){
+            const cnt=density[g][si];
+            const bg=showDensity?densityColor(cnt,max):'#1a1a18';
+            const tc=showDensity?textCol(cnt,max):'#5a5752';
+            const hl=hlGrid[g][si];
+            let hlHtml='';
+            if(hl.length){
+                const shown=hl.slice(0,2), extra=hl.length-shown.length;
+                hlHtml='<div class="hm-players">';
+                shown.forEach(p=>{ hlHtml+=`<span style="color:${p.color};display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</span>`; });
+                if(extra>0) hlHtml+=`<span style="color:#9e9a94">+${extra}</span>`;
+                hlHtml+='</div>';
+            }
+            html+=`<td class="hm-cell" style="background:${bg}" title="G${g} · ${SECTORS[si]} · ${cnt.toLocaleString('it')} pianeti">
+                <div class="hm-count" style="color:${tc}">${showDensity?cnt.toLocaleString('it'):'·'}</div>${hlHtml}
+            </td>`;
+        }
+        html+='</tr>';
+    }
+    html+='</tbody>';
+    $('heatmapTable').innerHTML=html;
+}
+$('toggleDensity').addEventListener('change',()=>{ if(allPlanetsList.length) renderHeatmap(); });
+
+function generateDensitySummary() {
+    if(cache.density){ $('tableContainer').innerHTML=cache.density; return; }
+    const ranges={};
+    for(let g=1;g<=maxGalaxies;g++) ranges[g]=[0,0,0,0,0];
+    allPlanetsList.forEach(({g,s})=>{ if(g>=1&&g<=maxGalaxies) ranges[g][secIdx(s)]++; });
+    const rows=[];
+    for(let g=1;g<=maxGalaxies;g++){
+        const r=ranges[g], tot=r.reduce((a,b)=>a+b,0);
+        rows.push(`<tr><td class="gal-tag">G${g}</td>${r.map(v=>`<td class="num c">${v.toLocaleString('it')}</td>`).join('')}<td class="num-total c">${tot.toLocaleString('it')}</td></tr>`);
+    }
+    const html=`<table class="dt"><thead><tr><th>Gal.</th><th class="c">1–100</th><th class="c">101–200</th><th class="c">201–300</th><th class="c">301–400</th><th class="c">401–499</th><th class="c">Totale</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+    cache.density=html; $('tableContainer').innerHTML=html;
+}
+
+function generateFreeSlotsSummary() {
+    if(cache.slots){ $('freeSlotsContainer').innerHTML=cache.slots; return; }
+    const rows=[];
+    for(let g=1;g<=maxGalaxies;g++){
+        const f8=[],f15=[];
+        for(let s=1;s<=499;s++){
+            if(!occupiedPositions.has(`${g}-${s}-8`)) f8.push(s);
+            if(!occupiedPositions.has(`${g}-${s}-15`)) f15.push(s);
+        }
+        rows.push(`<tr><td class="gal-tag">G${g}</td>
+        <td><div class="slots-list">${f8.length?f8.join(', '):'<span style="color:var(--red)">Nessuna</span>'}</div><div class="slot-tot">Totale: ${f8.length}</div></td>
+        <td><div class="slots-list">${f15.length?f15.join(', '):'<span style="color:var(--red)">Nessuna</span>'}</div><div class="slot-tot">Totale: ${f15.length}</div></td></tr>`);
+    }
+    const html=`<table class="dt"><thead><tr><th>Gal.</th><th>Slot 8 — sistemi liberi</th><th>Slot 15 — sistemi liberi</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+    cache.slots=html; $('freeSlotsContainer').innerHTML=html;
+}
+$('toggleFreeSlots').addEventListener('change',e=>{
+    if(e.target.checked&&allPlanetsList.length){ $('freeSlotsPanel').style.display='block'; generateFreeSlotsSummary(); }
+    else $('freeSlotsPanel').style.display='none';
+});
+
+function renderAllianceSummaries() {
+    const al=activeLayers.filter(l=>l.type==='alliance');
+    if(!al.length){ $('allianceSummaryPanel').style.display='none'; return; }
+    $('allianceSummaryPanel').style.display='block';
+    const grid={};
+    for(let g=1;g<=maxGalaxies;g++) grid[g]=[[],[],[],[],[]];
+    al.forEach(layer=>layer.dataset.forEach(p=>{
+        if(p.g>=1&&p.g<=maxGalaxies) grid[p.g][secIdx(p.s)].push({name:p.playerName,tag:layer.allianceTag,color:layer.color});
+    }));
+    const rows=[];
+    for(let g=1;g<=maxGalaxies;g++){
+        let cells=`<td class="gal-tag">G${g}</td>`;
+        for(let i=0;i<5;i++){
+            const cp=grid[g][i];
+            if(!cp.length){ cells+='<td style="color:var(--text3)">—</td>'; continue; }
+            const counts={};
+            cp.forEach(p=>{ const k=`${p.name}|||${p.tag}|||${p.color}`; counts[k]=(counts[k]||0)+1; });
+            const items=Object.entries(counts).sort().map(([k,n])=>{
+                const [nm,tg,cl]=k.split('|||');
+                return `<div class="ply-entry"><span class="ply-name">${nm}</span> <span style="color:var(--text3)">(${n})</span> <span class="ply-tag" style="color:${cl}">[${tg}]</span></div>`;
+            }).join('');
+            cells+=`<td>${items}</td>`;
+        }
+        rows.push(`<tr>${cells}</tr>`);
+    }
+    $('allianceTableContainer').innerHTML=`<table class="dt"><thead><tr><th>Gal.</th><th>1–100</th><th>101–200</th><th>201–300</th><th>301–400</th><th>401–499</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+}
+
+function renderHighlights() {
+    const c=$('activeHighlights'); c.innerHTML='';
+    activeLayers.forEach((layer,i)=>{
+        const b=document.createElement('div'); b.className='badge';
+        b.style.background=layer.color+'22'; b.style.border=`1px solid ${layer.color}55`; b.style.color=layer.color;
+        b.innerHTML=`<span>${layer.label}</span><div class="badge-x" onclick="removeHighlight(${i})">✕</div>`;
+        c.appendChild(b);
     });
+    $('exportControls').style.display=activeLayers.length?'flex':'none';
+    $('statLayers').textContent=activeLayers.length;
+    if(allPlanetsList.length) renderHeatmap();
+}
+window.removeHighlight=function(i){ activeLayers.splice(i,1); renderHighlights(); renderAllianceSummaries(); };
+function nextColor(){ const c=palette[colorIndex]; colorIndex=(colorIndex+1)%palette.length; return c; }
+
+$('addPlayerBtn').addEventListener('click',()=>{
+    const val=$('playerName').value.trim().toLowerCase(); if(!val) return;
+    let id=null;
+    for(const [pid,d] of Object.entries(playersMap)) if(d.nameLower===val){ id=pid; break; }
+    if(!id) return alert('Giocatore non trovato.');
+    const pd=playersMap[id];
+    const spots=allPlanetsList.filter(p=>p.playerId===id).map(p=>({g:p.g,s:p.s,p:p.p,playerName:pd.name,playerStatus:pd.statusText}));
+    if(!spots.length) return alert('Il giocatore non ha pianeti registrati.');
+    activeLayers.push({type:'player',label:pd.name,allianceTag:'',color:nextColor(),dataset:spots});
+    $('playerName').value=''; renderHighlights(); renderAllianceSummaries();
+});
+
+$('addAllianceBtn').addEventListener('click',()=>{
+    const val=$('allianceInput').value.trim().toLowerCase(); if(!val) return;
+    let id=null;
+    for(const [aid,d] of Object.entries(alliancesMap)){
+        const f=`[${d.tag}] ${d.name}`.toLowerCase();
+        if(f===val||d.tag.toLowerCase()===val||d.name.toLowerCase()===val){ id=aid; break; }
+    }
+    if(!id) return alert('Alleanza non trovata.');
+    const spots=allPlanetsList.filter(p=>playersMap[p.playerId]?.allianceId===id).map(p=>{
+        const pl=playersMap[p.playerId];
+        return {g:p.g,s:p.s,p:p.p,playerName:pl.name,playerStatus:pl.statusText};
+    });
+    if(!spots.length) return alert('Nessun pianeta trovato per questa alleanza.');
+    const color=nextColor(), tag=alliancesMap[id].tag;
+    activeLayers.push({type:'alliance',label:`[${tag}]`,allianceTag:tag,color,dataset:spots});
+    $('allianceInput').value=''; renderHighlights(); renderAllianceSummaries();
+});
+
+function getExportData(){
+    return activeLayers.flatMap(l=>l.dataset.map(p=>({name:p.playerName,tag:l.allianceTag,g:p.g,s:p.s,p:p.p,status:p.playerStatus})))
+        .sort((a,b)=>a.g-b.g||a.s-b.s||a.p-b.p);
+}
+$('copyDataBtn').addEventListener('click',()=>{
+    const data=getExportData(); if(!data.length) return alert('Nessun dato da copiare.');
+    let txt='Posizioni OGame\n'+'─'.repeat(28)+'\n';
+    data.forEach(d=>txt+=`${d.tag?'['+d.tag+'] ':''}${d.name} → [${d.g}:${d.s}:${d.p}] (${d.status})\n`);
+    navigator.clipboard.writeText(txt).then(()=>{ const o=$('copyDataBtn').innerHTML; $('copyDataBtn').innerHTML='✅ Copiato!'; setTimeout(()=>{ $('copyDataBtn').innerHTML=o; },2000); });
+});
+$('exportCsvBtn').addEventListener('click',()=>{
+    const data=getExportData(); if(!data.length) return alert('Nessun dato da esportare.');
+    let csv='Giocatore,Alleanza,Galassia,Sistema,Posizione,Coordinate,Stato\n';
+    data.forEach(d=>csv+=`"${d.name.replace(/"/g,'""')}","${d.tag||''}",${d.g},${d.s},${d.p},"[${d.g}:${d.s}:${d.p}]","${d.status}"\n`);
+    const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),download:'ogame_posizioni.csv'});
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+});
 </script>
 </body>
 </html>
