@@ -6,6 +6,7 @@
     <title>OGame Universe Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg:       #111110;
@@ -52,7 +53,6 @@
             flex-wrap: wrap;
             gap: 12px;
         }
-
         .logo {
             font-family: 'Playfair Display', serif;
             font-size: clamp(1.6rem, 3.5vw, 2.4rem);
@@ -62,7 +62,6 @@
             line-height: 1;
         }
         .logo span { color: var(--amber); }
-
         .logo-tagline {
             font-size: 0.78rem;
             font-family: 'DM Mono', monospace;
@@ -71,7 +70,6 @@
             text-transform: uppercase;
             margin-top: 7px;
         }
-
         .header-status {
             font-family: 'DM Mono', monospace;
             font-size: 0.75rem;
@@ -98,7 +96,6 @@
             padding: 28px;
             margin-bottom: 24px;
         }
-
         .card-label {
             font-family: 'DM Mono', monospace;
             font-size: 0.7rem;
@@ -109,23 +106,9 @@
         }
 
         /* ── FORM ── */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            align-items: flex-end;
-        }
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-            flex: 1 1 180px;
-        }
-        .field label {
-            font-size: 0.82rem;
-            font-weight: 500;
-            color: var(--text2);
-        }
+        .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+        .field { display: flex; flex-direction: column; gap: 7px; flex: 1 1 180px; }
+        .field label { font-size: 0.82rem; font-weight: 500; color: var(--text2); }
 
         select, input[type="text"] {
             padding: 10px 14px;
@@ -144,58 +127,28 @@
 
         /* ── BUTTONS ── */
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .18s;
-            border: 1px solid transparent;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 10px 20px; border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: all .18s; border: 1px solid transparent; white-space: nowrap;
         }
-
-        .btn-primary {
-            background: var(--amber);
-            color: #111;
-            border-color: var(--amber);
-        }
+        .btn-primary { background: var(--amber); color: #111; border-color: var(--amber); }
         .btn-primary:hover { background: #f0b030; box-shadow: 0 4px 16px rgba(232,160,32,.25); }
         .btn-primary:active { transform: scale(.97); }
         .btn-primary:disabled { background: var(--border2); color: var(--text3); border-color: transparent; cursor: not-allowed; }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text2);
-            border-color: var(--border2);
-        }
+        .btn-ghost { background: transparent; color: var(--text2); border-color: var(--border2); }
         .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
-
         .btn-icon { padding: 10px 14px; font-size: 1.2rem; }
-
         .row-inp { display: flex; gap: 8px; }
         .row-inp input { flex: 1; }
 
         /* ── CHIPS ── */
         .chips { display: flex; gap: 8px; flex-wrap: wrap; }
         .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 9px 14px;
-            border: 1px solid var(--border2);
-            border-radius: var(--radius);
-            font-size: 0.88rem;
-            font-weight: 500;
-            cursor: pointer;
-            user-select: none;
-            transition: all .18s;
-            color: var(--text2);
-            background: var(--bg);
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 14px; border: 1px solid var(--border2); border-radius: var(--radius);
+            font-size: 0.88rem; font-weight: 500; cursor: pointer; user-select: none;
+            transition: all .18s; color: var(--text2); background: var(--bg);
         }
         .chip:hover { border-color: var(--text3); color: var(--text); }
         .chip:has(input:checked) { border-color: var(--amber); color: var(--amber); background: var(--amber-bg); }
@@ -205,42 +158,16 @@
         .progress-wrap { display: none; margin-top: 16px; }
         .progress-track { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--amber); border-radius: 2px; transition: width .35s ease; }
-        .progress-lbl {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem; letter-spacing: 1.5px;
-            color: var(--text3); margin-top: 6px; text-transform: uppercase;
-        }
+        .progress-lbl { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 1.5px; color: var(--text3); margin-top: 6px; text-transform: uppercase; }
 
         /* ── LOADING ── */
         .loading-bar { display: none; margin-top: 14px; }
-        .loading-inner {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 16px;
-            background: var(--surface2);
-            border: 1px solid var(--border2);
-            border-radius: var(--radius);
-        }
-        .ld-dots span {
-            display: inline-block;
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: var(--amber);
-            animation: ldot 1.2s infinite;
-            margin: 0 2px;
-        }
+        .loading-inner { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); }
+        .ld-dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--amber); animation: ldot 1.2s infinite; margin: 0 2px; }
         .ld-dots span:nth-child(2) { animation-delay: .2s; }
         .ld-dots span:nth-child(3) { animation-delay: .4s; }
-        @keyframes ldot {
-            0%,80%,100% { opacity:.2; transform:scale(.8); }
-            40%          { opacity:1;  transform:scale(1); }
-        }
-        .ld-text {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem; letter-spacing: 2px;
-            color: var(--text2); text-transform: uppercase;
-        }
+        @keyframes ldot { 0%,80%,100% { opacity:.2; transform:scale(.8); } 40% { opacity:1; transform:scale(1); } }
+        .ld-text { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; color: var(--text2); text-transform: uppercase; }
 
         /* ── DIVIDER ── */
         .divider { height: 1px; background: var(--border); margin: 24px 0; }
@@ -248,25 +175,16 @@
         /* ── BADGES ── */
         #activeHighlights { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
         .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 10px 6px 13px;
-            border-radius: 20px;
-            font-size: 0.82rem;
-            font-weight: 500;
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 6px 10px 6px 13px; border-radius: 20px;
+            font-size: 0.82rem; font-weight: 500;
             animation: bin .25s ease;
         }
         @keyframes bin { from { opacity:0; transform:scale(.88); } to { opacity:1; transform:scale(1); } }
         .badge-x {
-            cursor: pointer;
-            width: 18px; height: 18px;
-            border-radius: 50%;
-            background: rgba(0,0,0,.3);
-            display: flex; align-items: center; justify-content: center;
-            font-size: .65rem;
-            transition: background .15s;
-            flex-shrink: 0;
+            cursor: pointer; width: 18px; height: 18px; border-radius: 50%;
+            background: rgba(0,0,0,.3); display: flex; align-items: center;
+            justify-content: center; font-size: .65rem; transition: background .15s; flex-shrink: 0;
         }
         .badge-x:hover { background: rgba(220,50,50,.5); }
 
@@ -280,97 +198,214 @@
         .stat-val { font-family: 'DM Mono', monospace; font-size: 1.4rem; font-weight: 500; color: var(--white); line-height: 1; }
         .stat-lbl { font-size: 0.72rem; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: .5px; }
 
-        /* ── HEATMAP ── */
-        .heatmap-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .heatmap-table {
-            border-collapse: separate;
-            border-spacing: 3px;
-            min-width: 560px;
-            width: 100%;
+        /* ── BUBBLE CHART ── */
+        .chart-container { position: relative; height: 58vh; min-height: 400px; }
+
+        /* ── CHART LEGEND ── */
+        .chart-legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
         }
-        .heatmap-table thead th {
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text2);
+        }
+        .legend-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ── FREE SLOTS ── */
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+        .slot-galaxy-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+        .slot-gal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .slot-gal-name {
             font-family: 'DM Mono', monospace;
-            font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
-            color: var(--text3); padding: 0 4px 10px; text-align: center; font-weight: 400;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--amber);
         }
-        .heatmap-table thead th:first-child { text-align: left; }
-
-        .hm-cell {
-            border-radius: 4px;
-            height: 56px;
-            text-align: center;
-            vertical-align: middle;
-            transition: transform .15s, box-shadow .15s;
-            position: relative;
-            cursor: default;
-        }
-        .hm-cell:hover { transform: scale(1.05); z-index: 5; box-shadow: 0 6px 20px rgba(0,0,0,.6); }
-
-        .hm-count {
+        .slot-count-badge {
             font-family: 'DM Mono', monospace;
-            font-size: 0.88rem; font-weight: 500; line-height: 1;
+            font-size: 0.72rem;
+            color: var(--green);
+            background: rgba(76,175,120,0.12);
+            border: 1px solid rgba(76,175,120,0.25);
+            padding: 2px 8px;
+            border-radius: 10px;
         }
-        .hm-players {
-            margin-top: 3px; font-size: 0.58rem; line-height: 1.3;
-            overflow: hidden; max-height: 26px; padding: 0 3px;
+        .slot-count-badge.zero {
+            color: var(--red);
+            background: rgba(224,85,85,0.10);
+            border-color: rgba(224,85,85,0.2);
         }
-        .gal-lbl {
-            font-family: 'DM Mono', monospace; font-size: 0.78rem;
-            color: var(--text2); white-space: nowrap; padding-right: 10px; letter-spacing: 1px;
-        }
-
-        .hm-legend {
-            display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap;
-        }
-        .hm-legend-lbl { font-size: .72rem; color: var(--text3); font-family: 'DM Mono', monospace; }
-        .hm-legend-bar {
-            flex: 1; min-width: 80px; max-width: 220px; height: 7px; border-radius: 4px;
-            background: linear-gradient(90deg,#1e2a1a,#2e5c28,#4caf78,#a0d44a,#e8c020,#e87020,#e04040);
-        }
-
-        /* ── DATA TABLES ── */
-        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table.dt {
-            width: 100%; border-collapse: collapse;
-            font-size: 0.88rem; min-width: 560px;
-        }
-        table.dt th {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
-            color: var(--text3); font-weight: 400;
-            padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left;
-        }
-        table.dt th.c { text-align: center; }
-        table.dt td {
-            padding: 10px 14px; border-bottom: 1px solid var(--border);
-            color: var(--text); vertical-align: top;
-        }
-        table.dt td.c { text-align: center; }
-        table.dt tr:last-child td { border-bottom: none; }
-        table.dt tr:hover td { background: var(--surface2); }
-
-        .gal-tag { font-family: 'DM Mono', monospace; font-size: .8rem; letter-spacing: 1px; color: var(--amber); }
-        .num { font-family: 'DM Mono', monospace; font-size: .85rem; }
-        .num-total { font-family: 'DM Mono', monospace; font-size: .88rem; color: var(--white); font-weight: 500; }
-
         .slots-list {
-            font-family: 'DM Mono', monospace; font-size: .75rem;
-            color: var(--text2); max-height: 72px; overflow-y: auto; line-height: 1.8;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text2);
+            line-height: 1.9;
+            max-height: 88px;
+            overflow-y: auto;
+            word-break: break-all;
         }
         .slots-list::-webkit-scrollbar { width: 3px; }
         .slots-list::-webkit-scrollbar-thumb { background: var(--border2); }
-        .slot-tot { font-family: 'DM Mono', monospace; font-size: .72rem; color: var(--green); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); }
 
-        .ply-entry { font-size: .83rem; padding: 3px 0; color: var(--text2); border-bottom: 1px dashed var(--border); }
-        .ply-entry:last-child { border-bottom: none; }
-        .ply-name { color: var(--text); font-weight: 500; }
-        .ply-tag { font-family: 'DM Mono', monospace; font-size: .78rem; }
+        /* ── ALLIANCE COMPARISON ── */
+
+        /* Per-galaxy accordion blocks */
+        .ally-galaxy-block {
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .ally-galaxy-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: var(--surface2);
+            cursor: pointer;
+            user-select: none;
+        }
+        .ally-galaxy-header:hover { background: #282826; }
+        .ally-gal-name {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--amber);
+            min-width: 32px;
+        }
+        .ally-bar-row {
+            display: flex;
+            gap: 6px;
+            flex: 1;
+            align-items: center;
+        }
+        /* Stacked mini-bar showing alliance proportion in this galaxy */
+        .ally-mini-bar {
+            height: 6px;
+            border-radius: 3px;
+            transition: width .3s ease;
+            min-width: 2px;
+        }
+        .ally-galaxy-total {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text3);
+            white-space: nowrap;
+        }
+        .ally-galaxy-body {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        /* Sector columns inside each galaxy */
+        .sector-cols {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        .sector-col { }
+        .sector-col-header {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            color: var(--text3);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sector-empty {
+            font-size: 0.8rem;
+            color: var(--text3);
+            font-style: italic;
+        }
+
+        /* Each alliance group inside a sector */
+        .sector-ally-group {
+            margin-bottom: 10px;
+        }
+        .sector-ally-group:last-child { margin-bottom: 0; }
+        .sector-ally-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .sector-ally-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .sector-player-list {
+            padding-left: 12px;
+        }
+        .sector-player-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 6px;
+            font-size: 0.82rem;
+            padding: 2px 0;
+            border-bottom: 1px solid var(--border);
+            color: var(--text2);
+        }
+        .sector-player-row:last-child { border-bottom: none; }
+        .sector-player-name { color: var(--text); }
+        .sector-player-count {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text3);
+            white-space: nowrap;
+        }
+
+        /* ── DATA TABLES (general) ── */
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table.dt { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 400px; }
+        table.dt th { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); font-weight: 400; padding: 10px 14px; border-bottom: 1px solid var(--border); text-align: left; }
+        table.dt td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+        table.dt tr:last-child td { border-bottom: none; }
+        table.dt tr:hover td { background: var(--surface2); }
+        .gal-tag { font-family: 'DM Mono', monospace; font-size: .8rem; letter-spacing: 1px; color: var(--amber); }
 
         @media (max-width: 768px) {
             .app { padding: 0 14px 40px; }
             header { padding: 24px 0 20px; }
             .card { padding: 18px; }
             .stats-row { flex-wrap: wrap; }
+            .sector-cols { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        }
+        @media (max-width: 480px) {
+            .sector-cols { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -404,9 +439,7 @@
             </div>
             <div class="field">
                 <label for="universeSelect">Universo</label>
-                <select id="universeSelect">
-                    <option value="">Seleziona una community...</option>
-                </select>
+                <select id="universeSelect"><option value="">Seleziona una community...</option></select>
             </div>
             <div class="field" style="flex:0 0 auto">
                 <label>&nbsp;</label>
@@ -446,8 +479,8 @@
                 <div class="field" style="flex:0 0 auto">
                     <label>&nbsp;</label>
                     <div class="chips">
-                        <label class="chip"><input type="checkbox" id="toggleFreeSlots"> Slot 8/15</label>
-                        <label class="chip"><input type="checkbox" id="toggleDensity" checked> Densità</label>
+                        <label class="chip"><input type="checkbox" id="toggleFreeSlots"> Slot 8 liberi</label>
+                        <label class="chip"><input type="checkbox" id="toggleBackground" checked> Sfondo</label>
                     </div>
                 </div>
             </div>
@@ -459,72 +492,83 @@
         </div>
     </div>
 
-    <!-- MAP -->
+    <!-- BUBBLE CHART -->
     <div class="card" id="mapCard" style="display:none">
-        <div class="card-label">Mappa universo — densità pianeti</div>
+        <div class="card-label">Mappa universo</div>
         <div class="stats-row" id="statsRow">
             <div class="stat-box"><div class="stat-val" id="statPlanets">—</div><div class="stat-lbl">Pianeti</div></div>
             <div class="stat-box"><div class="stat-val" id="statPlayers">—</div><div class="stat-lbl">Giocatori</div></div>
             <div class="stat-box"><div class="stat-val" id="statGalaxies">—</div><div class="stat-lbl">Galassie</div></div>
             <div class="stat-box"><div class="stat-val" id="statLayers">0</div><div class="stat-lbl">Layer attivi</div></div>
         </div>
-        <div class="heatmap-scroll">
-            <table class="heatmap-table" id="heatmapTable"></table>
+        <div class="chart-container">
+            <canvas id="universeMap"></canvas>
         </div>
-        <div class="hm-legend">
-            <span class="hm-legend-lbl">Vuoto</span>
-            <div class="hm-legend-bar"></div>
-            <span class="hm-legend-lbl">Affollato</span>
-        </div>
+        <div class="chart-legend" id="chartLegend"></div>
     </div>
 
-    <!-- ALLIANCE DETAIL -->
+    <!-- ALLIANCE COMPARISON -->
     <div class="card" id="allianceSummaryPanel" style="display:none">
-        <div class="card-label">Distribuzione alleanze per settore</div>
-        <div class="table-scroll" id="allianceTableContainer"></div>
-    </div>
-
-    <!-- DENSITY TABLE -->
-    <div class="card" id="summaryPanel" style="display:none">
-        <div class="card-label">Densità pianeti — riepilogo globale</div>
-        <div class="table-scroll" id="tableContainer"></div>
+        <div class="card-label">Confronto alleanze per galassia</div>
+        <div id="allianceCompareContainer"></div>
     </div>
 
     <!-- FREE SLOTS -->
     <div class="card" id="freeSlotsPanel" style="display:none">
-        <div class="card-label">Posizioni strategiche libere (slot 8 e 15)</div>
-        <div class="table-scroll" id="freeSlotsContainer"></div>
+        <div class="card-label">Slot 8 liberi per galassia</div>
+        <div class="slots-grid" id="freeSlotsContainer"></div>
     </div>
 
 </div>
 <script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────────
 const proxyBaseUrl = '/.netlify/functions/proxy?url=';
-let allPlanetsList = [], playersMap = {}, alliancesMap = {}, occupiedPositions = new Set();
-let maxGalaxies = 9, activeLayers = [], colorIndex = 0;
-const cache = { density: null, slots: null, clear() { this.density=null; this.slots=null; } };
-const palette = ['#e85c8a','#4ec9a0','#f0b030','#9b72cf','#e87a30','#5cbae6','#a3cf72','#e05555','#72cfcf','#e8c850','#cf72a3','#72a3e8'];
-const $ = id => document.getElementById(id);
-const SECTORS = ['1–100','101–200','201–300','301–400','401–499'];
 
+// ─── STATE ─────────────────────────────────────────────────────────────────────
+let chartInstance     = null;
+let baseDensityDataset = null;
+let allPlanetsList    = [];
+let playersMap        = {};
+let alliancesMap      = {};
+let occupiedPositions = new Set();
+let maxGalaxies       = 9;
+let activeLayers      = [];
+let colorIndex        = 0;
+const cache = { slots: null, clear() { this.slots = null; } };
+
+const palette = [
+    '#e85c8a','#4ec9a0','#f0b030','#9b72cf',
+    '#e87a30','#5cbae6','#a3cf72','#e05555',
+    '#72cfcf','#e8c850','#cf72a3','#72a3e8'
+];
+
+const SECTORS     = ['1–100','101–200','201–300','301–400','401–499'];
+const SECTOR_MAX  = [100, 200, 300, 400, 499];
+
+const $ = id => document.getElementById(id);
+
+// ─── PROGRESS ──────────────────────────────────────────────────────────────────
 function setProgress(pct, lbl) {
     $('progressWrap').style.display = 'block';
-    $('progressFill').style.width = pct + '%';
-    $('progressLbl').textContent = lbl;
+    $('progressFill').style.width   = pct + '%';
+    $('progressLbl').textContent    = lbl;
 }
 
+// ─── FETCH XML ─────────────────────────────────────────────────────────────────
 async function fetchXML(url) {
     const r = await fetch(proxyBaseUrl + encodeURIComponent(url));
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return new DOMParser().parseFromString(await r.text(), 'text/xml');
 }
 
+// ─── LOAD UNIVERSES ────────────────────────────────────────────────────────────
 async function loadUniverses() {
     const country = $('countrySelect').value;
     $('universeSelect').innerHTML = '<option value="">Caricamento...</option>';
     $('loadBtn').disabled = true;
     try {
         const xml = await fetchXML(`https://s269-${country}.ogame.gameforge.com/api/universes.xml`);
-        const us = xml.getElementsByTagName('universe');
+        const us  = xml.getElementsByTagName('universe');
         $('universeSelect').innerHTML = '';
         const om = {};
         for (let i = 0; i < us.length; i++) {
@@ -546,279 +590,476 @@ async function loadUniverses() {
 $('countrySelect').addEventListener('change', loadUniverses);
 window.addEventListener('DOMContentLoaded', loadUniverses);
 
+// ─── MAIN LOAD ─────────────────────────────────────────────────────────────────
 $('loadBtn').addEventListener('click', async () => {
     const url = $('universeSelect').value;
     if (!url) return;
+
     $('loadingMsg').style.display = 'block';
-    $('loadBtn').disabled = true;
-    $('countrySelect').disabled = true;
-    $('universeSelect').disabled = true;
+    $('loadBtn').disabled = $('countrySelect').disabled = $('universeSelect').disabled = true;
     setProgress(5, 'Avvio connessione…');
+
     try {
         setProgress(10, 'Download XML in parallelo…');
-        const [uXml,pXml,aXml,sXml] = await Promise.all([
+        const [uXml, pXml, aXml, sXml] = await Promise.all([
             fetchXML(`${url}/api/universe.xml`),
             fetchXML(`${url}/api/players.xml`),
             fetchXML(`${url}/api/alliances.xml`),
             fetchXML(`${url}/api/serverData.xml`)
         ]);
+
         setProgress(50, 'Parsing server…');
         const gn = sXml.getElementsByTagName('galaxies')[0];
         maxGalaxies = gn ? +gn.textContent : 9;
-        setProgress(60, 'Indicizzazione alleanze…');
-        parseAlliances(aXml);
-        setProgress(70, 'Indicizzazione giocatori…');
-        parsePlayers(pXml);
-        setProgress(80, 'Mappatura universo…');
-        parseUniverse(uXml);
+
+        setProgress(60, 'Indicizzazione alleanze…'); parseAlliances(aXml);
+        setProgress(70, 'Indicizzazione giocatori…'); parsePlayers(pXml);
+        setProgress(80, 'Mappatura universo…');       parseUniverse(uXml);
+
         cache.clear();
-        const uniq = new Set(allPlanetsList.map(p=>p.playerId)).size;
+        activeLayers = []; colorIndex = 0;
+
+        // Stats
+        const uniq = new Set(allPlanetsList.map(p => p.playerId)).size;
         $('statPlanets').textContent  = allPlanetsList.length.toLocaleString('it');
         $('statPlayers').textContent  = uniq.toLocaleString('it');
         $('statGalaxies').textContent = maxGalaxies;
         $('statLayers').textContent   = '0';
         $('statsRow').style.display   = 'flex';
-        activeLayers = []; colorIndex = 0;
-        $('toggleDensity').checked = true;
+
+        $('toggleBackground').checked = true;
         $('actionSection').style.display = 'block';
-        $('mapCard').style.display = 'block';
-        $('summaryPanel').style.display = 'block';
-        setProgress(95, 'Rendering…');
-        renderHeatmap(); generateDensitySummary(); renderHighlights(); renderAllianceSummaries();
-        if ($('toggleFreeSlots').checked) { $('freeSlotsPanel').style.display='block'; generateFreeSlotsSummary(); }
-        setProgress(100, 'Completato'); setTimeout(()=>{ $('progressWrap').style.display='none'; },1400);
-        $('statusDot').classList.add('on'); $('statusText').textContent = 'Connesso';
+        $('mapCard').style.display       = 'block';
+
+        setProgress(95, 'Rendering grafico…');
+        initChart();
+        renderHighlights();
+        renderAllianceSummaries();
+
+        if ($('toggleFreeSlots').checked) {
+            $('freeSlotsPanel').style.display = 'block';
+            generateFreeSlots();
+        }
+
+        setProgress(100, 'Completato');
+        setTimeout(() => { $('progressWrap').style.display = 'none'; }, 1400);
+
+        $('statusDot').classList.add('on');
+        $('statusText').textContent = 'Connesso';
         $('loadBtn').textContent = '✓ Aggiornato';
-        setTimeout(()=>{ $('loadBtn').textContent='Ricarica dati'; },3000);
-    } catch(e) {
-        alert('Errore nello scaricamento dati XML.'); console.error(e);
-        $('progressWrap').style.display='none';
+        setTimeout(() => { $('loadBtn').textContent = 'Ricarica dati'; }, 3000);
+
+    } catch (e) {
+        alert('Errore nello scaricamento dati XML.');
+        console.error(e);
+        $('progressWrap').style.display = 'none';
     } finally {
-        $('loadingMsg').style.display='none';
-        $('loadBtn').disabled=false; $('countrySelect').disabled=false; $('universeSelect').disabled=false;
+        $('loadingMsg').style.display = 'none';
+        $('loadBtn').disabled = $('countrySelect').disabled = $('universeSelect').disabled = false;
     }
 });
 
+// ─── PARSE ─────────────────────────────────────────────────────────────────────
 function parseAlliances(xml) {
     alliancesMap = {};
     const f = document.createDocumentFragment();
     const ns = xml.getElementsByTagName('alliance');
-    for (let i=0;i<ns.length;i++) {
-        const id=ns[i].getAttribute('id'), tag=ns[i].getAttribute('tag'), name=ns[i].getAttribute('name');
-        alliancesMap[id]={tag,name};
-        const o=document.createElement('option'); o.value=`[${tag}] ${name}`; f.appendChild(o);
+    for (let i = 0; i < ns.length; i++) {
+        const id = ns[i].getAttribute('id'), tag = ns[i].getAttribute('tag'), name = ns[i].getAttribute('name');
+        alliancesMap[id] = { tag, name };
+        const o = document.createElement('option');
+        o.value = `[${tag}] ${name}`; f.appendChild(o);
     }
-    $('allianceList').innerHTML=''; $('allianceList').appendChild(f);
+    $('allianceList').innerHTML = ''; $('allianceList').appendChild(f);
 }
-const SM = {v:'Vacanza',i:'Inattivo',I:'Inattivo',b:'Bannato',o:'Fuorilegge',a:'Admin'};
+const SM = { v:'Vacanza', i:'Inattivo', I:'Inattivo', b:'Bannato', o:'Fuorilegge', a:'Admin' };
 function readStatus(s) {
-    if(!s) return 'Attivo';
-    const l=[];
-    for(const [k,v] of Object.entries(SM)) if(s.includes(k)) l.push(v);
-    return l.length?l.join(', '):'Sconosciuto';
+    if (!s) return 'Attivo';
+    const l = [];
+    for (const [k,v] of Object.entries(SM)) if (s.includes(k)) l.push(v);
+    return l.length ? l.join(', ') : 'Sconosciuto';
 }
 function parsePlayers(xml) {
-    playersMap={};
-    const ns=xml.getElementsByTagName('player');
-    for(let i=0;i<ns.length;i++){
-        const id=ns[i].getAttribute('id'), name=ns[i].getAttribute('name');
-        playersMap[id]={name,nameLower:name.toLowerCase(),allianceId:ns[i].getAttribute('alliance'),statusText:readStatus(ns[i].getAttribute('status'))};
+    playersMap = {};
+    const ns = xml.getElementsByTagName('player');
+    for (let i = 0; i < ns.length; i++) {
+        const id = ns[i].getAttribute('id'), name = ns[i].getAttribute('name');
+        playersMap[id] = { name, nameLower: name.toLowerCase(), allianceId: ns[i].getAttribute('alliance'), statusText: readStatus(ns[i].getAttribute('status')) };
     }
 }
 function parseUniverse(xml) {
-    allPlanetsList=[]; occupiedPositions.clear();
-    const ps=xml.getElementsByTagName('planet');
-    for(let i=0;i<ps.length;i++){
-        const c=ps[i].getAttribute('coords'), pid=ps[i].getAttribute('player');
-        if(!c) continue;
-        const [g,s,p]=c.split(':').map(Number);
-        if(g>maxGalaxies) continue;
-        allPlanetsList.push({g,s,p,playerId:pid});
+    allPlanetsList = []; occupiedPositions.clear();
+    const ps = xml.getElementsByTagName('planet');
+    for (let i = 0; i < ps.length; i++) {
+        const c = ps[i].getAttribute('coords'), pid = ps[i].getAttribute('player');
+        if (!c) continue;
+        const [g, s, p] = c.split(':').map(Number);
+        if (g > maxGalaxies) continue;
+        allPlanetsList.push({ g, s, p, playerId: pid });
         occupiedPositions.add(`${g}-${s}-${p}`);
     }
 }
 
-function secIdx(s) { if(s<=100)return 0; if(s<=200)return 1; if(s<=300)return 2; if(s<=400)return 3; return 4; }
+function secIdx(s) { if (s<=100) return 0; if (s<=200) return 1; if (s<=300) return 2; if (s<=400) return 3; return 4; }
 
-function densityColor(count,max) {
-    if(!max||!count) return '#1a1a18';
-    const t=Math.min(count/max,1);
-    const stops=[[30,45,26],[46,91,40],[76,175,120],[160,212,74],[232,192,32],[232,122,32],[224,64,64]];
-    const pos=t*(stops.length-1), i=Math.floor(pos), f=pos-i;
-    const a=stops[Math.min(i,stops.length-1)], b=stops[Math.min(i+1,stops.length-1)];
-    return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;
+// ─── BUBBLE CHART ──────────────────────────────────────────────────────────────
+function buildBaseDensityDataset() {
+    const densityMap = {};
+    allPlanetsList.forEach(({ g, s }) => {
+        const key = `${g}-${s}`;
+        if (!densityMap[key]) densityMap[key] = { g, s, count: 0 };
+        densityMap[key].count++;
+    });
+    return {
+        label: 'Densità universo',
+        data: Object.values(densityMap).map(d => ({
+            x: d.s,
+            y: d.g,
+            r: Math.max(2, d.count * 1.1),
+            _count: d.count
+        })),
+        backgroundColor: 'rgba(255,255,255,0.07)',
+        borderColor:     'rgba(255,255,255,0.18)',
+        borderWidth: 1,
+        hidden: false
+    };
 }
-function textCol(count,max) { return (!max||!count)? '#5a5752': (count/max>0.35?'#fff':'#9e9a94'); }
 
-function renderHeatmap() {
-    const density={};
-    for(let g=1;g<=maxGalaxies;g++) density[g]=[0,0,0,0,0];
-    allPlanetsList.forEach(p=>{ if(p.g>=1&&p.g<=maxGalaxies) density[p.g][secIdx(p.s)]++; });
+function initChart() {
+    const ctx = $('universeMap').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
 
-    const hlGrid={};
-    for(let g=1;g<=maxGalaxies;g++) hlGrid[g]=[[],[],[],[],[]];
-    activeLayers.forEach(layer=>{
-        layer.dataset.forEach(p=>{
-            if(p.g>=1&&p.g<=maxGalaxies) hlGrid[p.g][secIdx(p.s)].push({name:p.playerName,color:layer.color,tag:layer.allianceTag});
+    baseDensityDataset = buildBaseDensityDataset();
+
+    chartInstance = new Chart(ctx, {
+        type: 'bubble',
+        data: { datasets: [baseDensityDataset] },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 500, easing: 'easeOutQuart' },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Sistema (1–499)', color: 'rgba(240,237,232,0.4)', font: { family: 'DM Mono', size: 11 } },
+                    min: 0, max: 500,
+                    ticks: { color: 'rgba(240,237,232,0.35)', font: { family: 'DM Mono', size: 10 }, maxTicksLimit: 10 },
+                    grid: { color: 'rgba(255,255,255,0.04)' },
+                    border: { color: 'rgba(255,255,255,0.08)' }
+                },
+                y: {
+                    title: { display: true, text: 'Galassia', color: 'rgba(240,237,232,0.4)', font: { family: 'DM Mono', size: 11 } },
+                    min: 0, max: maxGalaxies + 1,
+                    reverse: true,
+                    ticks: { color: 'rgba(240,237,232,0.35)', stepSize: 1, font: { family: 'DM Mono', size: 10 } },
+                    grid: { color: 'rgba(255,255,255,0.04)' },
+                    border: { color: 'rgba(255,255,255,0.08)' }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(22,22,20,0.96)',
+                    borderColor: 'rgba(255,255,255,0.12)',
+                    borderWidth: 1,
+                    titleFont: { family: 'DM Mono', size: 11 },
+                    bodyFont:  { family: 'DM Sans',  size: 13 },
+                    padding: 12,
+                    callbacks: {
+                        title(items) {
+                            const raw = items[0].raw;
+                            return `G${raw.y} : S${raw.x}${raw.p !== undefined ? ':' + raw.p : ''}`;
+                        },
+                        label(ctx) {
+                            const raw = ctx.raw;
+                            if (ctx.datasetIndex === 0) {
+                                return `  ${raw._count} pianeti presenti`;
+                            }
+                            const status = raw.playerStatus ? ` · ${raw.playerStatus}` : '';
+                            return `  ${raw.playerName || ''}${status}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateChart() {
+    if (!chartInstance) return;
+    chartInstance.data.datasets = [
+        baseDensityDataset,
+        ...activeLayers.map(l => ({
+            label: l.label,
+            data:  l.dataset.map(p => ({ x: p.s, y: p.g, p: p.p, r: l.type === 'player' ? 9 : 7, playerName: p.playerName, playerStatus: p.playerStatus })),
+            backgroundColor: l.color + 'cc',
+            borderColor:     l.color,
+            borderWidth: 1.5
+        }))
+    ];
+    chartInstance.update('active');
+    renderChartLegend();
+}
+
+function renderChartLegend() {
+    const el = $('chartLegend');
+    if (!activeLayers.length) { el.innerHTML = ''; return; }
+    el.innerHTML = activeLayers.map(l =>
+        `<div class="legend-item">
+            <span class="legend-dot" style="background:${l.color}"></span>
+            <span>${l.label}</span>
+        </div>`
+    ).join('');
+}
+
+$('toggleBackground').addEventListener('change', e => {
+    if (!baseDensityDataset) return;
+    baseDensityDataset.hidden = !e.target.checked;
+    chartInstance.update('active');
+});
+
+// ─── FREE SLOTS ────────────────────────────────────────────────────────────────
+function generateFreeSlots() {
+    if (cache.slots) { $('freeSlotsContainer').innerHTML = cache.slots; return; }
+
+    let html = '';
+    for (let g = 1; g <= maxGalaxies; g++) {
+        const free = [];
+        for (let s = 1; s <= 499; s++) {
+            if (!occupiedPositions.has(`${g}-${s}-8`)) free.push(s);
+        }
+        const isEmpty = free.length === 0;
+        html += `
+        <div class="slot-galaxy-card">
+            <div class="slot-gal-header">
+                <span class="slot-gal-name">Galassia ${g}</span>
+                <span class="slot-count-badge${isEmpty ? ' zero' : ''}">${free.length} liberi</span>
+            </div>
+            <div class="slots-list">
+                ${isEmpty
+                    ? '<span style="color:var(--red)">Nessuna posizione libera</span>'
+                    : free.join(', ')
+                }
+            </div>
+        </div>`;
+    }
+    cache.slots = html;
+    $('freeSlotsContainer').innerHTML = html;
+}
+
+$('toggleFreeSlots').addEventListener('change', e => {
+    if (e.target.checked && allPlanetsList.length) {
+        $('freeSlotsPanel').style.display = 'block';
+        generateFreeSlots();
+    } else {
+        $('freeSlotsPanel').style.display = 'none';
+    }
+});
+
+// ─── ALLIANCE COMPARISON ───────────────────────────────────────────────────────
+function renderAllianceSummaries() {
+    const allyLayers = activeLayers.filter(l => l.type === 'alliance');
+    if (!allyLayers.length) {
+        $('allianceSummaryPanel').style.display = 'none';
+        return;
+    }
+    $('allianceSummaryPanel').style.display = 'block';
+
+    // Build grid: grid[g][sectorIdx] = { [allyTag]: [{name, count}] }
+    const grid = {};
+    for (let g = 1; g <= maxGalaxies; g++) {
+        grid[g] = [{},{},{},{},{}];
+    }
+
+    // Total planets per alliance per galaxy (for the mini-bar)
+    const galTotals = {}; // galTotals[g][tag] = count
+    for (let g = 1; g <= maxGalaxies; g++) galTotals[g] = {};
+
+    allyLayers.forEach(layer => {
+        layer.dataset.forEach(p => {
+            if (p.g < 1 || p.g > maxGalaxies) return;
+            const si = secIdx(p.s);
+            const tag = layer.allianceTag;
+            if (!grid[p.g][si][tag]) grid[p.g][si][tag] = { color: layer.color, players: {} };
+            if (!grid[p.g][si][tag].players[p.playerName]) grid[p.g][si][tag].players[p.playerName] = 0;
+            grid[p.g][si][tag].players[p.playerName]++;
+
+            if (!galTotals[p.g][tag]) galTotals[p.g][tag] = { color: layer.color, count: 0 };
+            galTotals[p.g][tag].count++;
         });
     });
 
-    const showDensity = $('toggleDensity').checked;
-    const max = showDensity ? Math.max(...Object.values(density).flatMap(r=>r)) : 1;
+    let html = '';
 
-    let html='<thead><tr><th></th>';
-    SECTORS.forEach(s=>html+=`<th>${s}</th>`);
-    html+='</tr></thead><tbody>';
+    for (let g = 1; g <= maxGalaxies; g++) {
+        // Check if this galaxy has any data
+        const galData = galTotals[g];
+        const hasAny = Object.values(galData).some(v => v.count > 0);
+        if (!hasAny) continue;
 
-    for(let g=1;g<=maxGalaxies;g++){
-        html+=`<tr><td class="gal-lbl">G${g}</td>`;
-        for(let si=0;si<5;si++){
-            const cnt=density[g][si];
-            const bg=showDensity?densityColor(cnt,max):'#1a1a18';
-            const tc=showDensity?textCol(cnt,max):'#5a5752';
-            const hl=hlGrid[g][si];
-            let hlHtml='';
-            if(hl.length){
-                const shown=hl.slice(0,2), extra=hl.length-shown.length;
-                hlHtml='<div class="hm-players">';
-                shown.forEach(p=>{ hlHtml+=`<span style="color:${p.color};display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</span>`; });
-                if(extra>0) hlHtml+=`<span style="color:#9e9a94">+${extra}</span>`;
-                hlHtml+='</div>';
-            }
-            html+=`<td class="hm-cell" style="background:${bg}" title="G${g} · ${SECTORS[si]} · ${cnt.toLocaleString('it')} pianeti">
-                <div class="hm-count" style="color:${tc}">${showDensity?cnt.toLocaleString('it'):'·'}</div>${hlHtml}
-            </td>`;
-        }
-        html+='</tr>';
-    }
-    html+='</tbody>';
-    $('heatmapTable').innerHTML=html;
-}
-$('toggleDensity').addEventListener('change',()=>{ if(allPlanetsList.length) renderHeatmap(); });
+        const totalInGal = Object.values(galData).reduce((s, v) => s + v.count, 0);
 
-function generateDensitySummary() {
-    if(cache.density){ $('tableContainer').innerHTML=cache.density; return; }
-    const ranges={};
-    for(let g=1;g<=maxGalaxies;g++) ranges[g]=[0,0,0,0,0];
-    allPlanetsList.forEach(({g,s})=>{ if(g>=1&&g<=maxGalaxies) ranges[g][secIdx(s)]++; });
-    const rows=[];
-    for(let g=1;g<=maxGalaxies;g++){
-        const r=ranges[g], tot=r.reduce((a,b)=>a+b,0);
-        rows.push(`<tr><td class="gal-tag">G${g}</td>${r.map(v=>`<td class="num c">${v.toLocaleString('it')}</td>`).join('')}<td class="num-total c">${tot.toLocaleString('it')}</td></tr>`);
-    }
-    const html=`<table class="dt"><thead><tr><th>Gal.</th><th class="c">1–100</th><th class="c">101–200</th><th class="c">201–300</th><th class="c">301–400</th><th class="c">401–499</th><th class="c">Totale</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
-    cache.density=html; $('tableContainer').innerHTML=html;
-}
-
-function generateFreeSlotsSummary() {
-    if(cache.slots){ $('freeSlotsContainer').innerHTML=cache.slots; return; }
-    const rows=[];
-    for(let g=1;g<=maxGalaxies;g++){
-        const f8=[],f15=[];
-        for(let s=1;s<=499;s++){
-            if(!occupiedPositions.has(`${g}-${s}-8`)) f8.push(s);
-            if(!occupiedPositions.has(`${g}-${s}-15`)) f15.push(s);
-        }
-        rows.push(`<tr><td class="gal-tag">G${g}</td>
-        <td><div class="slots-list">${f8.length?f8.join(', '):'<span style="color:var(--red)">Nessuna</span>'}</div><div class="slot-tot">Totale: ${f8.length}</div></td>
-        <td><div class="slots-list">${f15.length?f15.join(', '):'<span style="color:var(--red)">Nessuna</span>'}</div><div class="slot-tot">Totale: ${f15.length}</div></td></tr>`);
-    }
-    const html=`<table class="dt"><thead><tr><th>Gal.</th><th>Slot 8 — sistemi liberi</th><th>Slot 15 — sistemi liberi</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
-    cache.slots=html; $('freeSlotsContainer').innerHTML=html;
-}
-$('toggleFreeSlots').addEventListener('change',e=>{
-    if(e.target.checked&&allPlanetsList.length){ $('freeSlotsPanel').style.display='block'; generateFreeSlotsSummary(); }
-    else $('freeSlotsPanel').style.display='none';
-});
-
-function renderAllianceSummaries() {
-    const al=activeLayers.filter(l=>l.type==='alliance');
-    if(!al.length){ $('allianceSummaryPanel').style.display='none'; return; }
-    $('allianceSummaryPanel').style.display='block';
-    const grid={};
-    for(let g=1;g<=maxGalaxies;g++) grid[g]=[[],[],[],[],[]];
-    al.forEach(layer=>layer.dataset.forEach(p=>{
-        if(p.g>=1&&p.g<=maxGalaxies) grid[p.g][secIdx(p.s)].push({name:p.playerName,tag:layer.allianceTag,color:layer.color});
-    }));
-    const rows=[];
-    for(let g=1;g<=maxGalaxies;g++){
-        let cells=`<td class="gal-tag">G${g}</td>`;
-        for(let i=0;i<5;i++){
-            const cp=grid[g][i];
-            if(!cp.length){ cells+='<td style="color:var(--text3)">—</td>'; continue; }
-            const counts={};
-            cp.forEach(p=>{ const k=`${p.name}|||${p.tag}|||${p.color}`; counts[k]=(counts[k]||0)+1; });
-            const items=Object.entries(counts).sort().map(([k,n])=>{
-                const [nm,tg,cl]=k.split('|||');
-                return `<div class="ply-entry"><span class="ply-name">${nm}</span> <span style="color:var(--text3)">(${n})</span> <span class="ply-tag" style="color:${cl}">[${tg}]</span></div>`;
+        // Mini stacked bar
+        const barSegments = Object.entries(galData)
+            .filter(([, v]) => v.count > 0)
+            .map(([tag, v]) => {
+                const pct = (v.count / totalInGal * 100).toFixed(1);
+                return `<div class="ally-mini-bar" title="[${tag}]: ${v.count}" style="background:${v.color};flex:${v.count}"></div>`;
             }).join('');
-            cells+=`<td>${items}</td>`;
+
+        // Alliance tags summary
+        const tagsStr = Object.entries(galData)
+            .filter(([, v]) => v.count > 0)
+            .map(([tag, v]) => `<span style="color:${v.color};font-family:'DM Mono',monospace;font-size:.72rem">[${tag}] ${v.count}</span>`)
+            .join('<span style="color:var(--text3)"> · </span>');
+
+        // Sector columns
+        let sectorCols = '';
+        for (let si = 0; si < 5; si++) {
+            const cellData = grid[g][si]; // { [tag]: { color, players: {name: count} } }
+            const hasData  = Object.keys(cellData).length > 0;
+
+            let inner = hasData ? '' : '<span class="sector-empty">—</span>';
+            if (hasData) {
+                // Sort alliances by their order in activeLayers for consistency
+                const sortedTags = allyLayers.map(l => l.allianceTag).filter(t => cellData[t]);
+                sortedTags.forEach(tag => {
+                    const entry = cellData[tag];
+                    const players = Object.entries(entry.players).sort((a,b) => b[1]-a[1]);
+                    const rows = players.map(([name, cnt]) =>
+                        `<div class="sector-player-row">
+                            <span class="sector-player-name">${name}</span>
+                            <span class="sector-player-count">${cnt > 1 ? cnt + ' p.' : ''}</span>
+                        </div>`
+                    ).join('');
+                    inner += `
+                        <div class="sector-ally-group">
+                            <div class="sector-ally-tag">
+                                <span class="sector-ally-dot" style="background:${entry.color}"></span>
+                                <span style="color:${entry.color}">[${tag}]</span>
+                            </div>
+                            <div class="sector-player-list">${rows}</div>
+                        </div>`;
+                });
+            }
+
+            sectorCols += `
+                <div class="sector-col">
+                    <div class="sector-col-header">${SECTORS[si]}</div>
+                    ${inner}
+                </div>`;
         }
-        rows.push(`<tr>${cells}</tr>`);
+
+        html += `
+        <div class="ally-galaxy-block">
+            <div class="ally-galaxy-header" onclick="toggleGalaxyBlock(this)">
+                <span class="ally-gal-name">G${g}</span>
+                <div class="ally-bar-row">${barSegments}</div>
+                <span class="ally-galaxy-total">${tagsStr}</span>
+                <span style="color:var(--text3);font-size:.8rem;margin-left:6px">▾</span>
+            </div>
+            <div class="ally-galaxy-body">
+                <div class="sector-cols">${sectorCols}</div>
+            </div>
+        </div>`;
     }
-    $('allianceTableContainer').innerHTML=`<table class="dt"><thead><tr><th>Gal.</th><th>1–100</th><th>101–200</th><th>201–300</th><th>301–400</th><th>401–499</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+
+    $('allianceCompareContainer').innerHTML = html || '<p style="color:var(--text3);font-size:.9rem">Nessun dato per le alleanze selezionate.</p>';
 }
 
+window.toggleGalaxyBlock = function(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('span:last-child');
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        arrow.textContent = '▾';
+    } else {
+        body.style.display = 'none';
+        arrow.textContent = '▸';
+    }
+};
+
+// ─── HIGHLIGHTS ───────────────────────────────────────────────────────────────
 function renderHighlights() {
-    const c=$('activeHighlights'); c.innerHTML='';
-    activeLayers.forEach((layer,i)=>{
-        const b=document.createElement('div'); b.className='badge';
-        b.style.background=layer.color+'22'; b.style.border=`1px solid ${layer.color}55`; b.style.color=layer.color;
-        b.innerHTML=`<span>${layer.label}</span><div class="badge-x" onclick="removeHighlight(${i})">✕</div>`;
+    const c = $('activeHighlights');
+    c.innerHTML = '';
+    activeLayers.forEach((layer, i) => {
+        const b = document.createElement('div');
+        b.className = 'badge';
+        b.style.background = layer.color + '22';
+        b.style.border     = `1px solid ${layer.color}55`;
+        b.style.color      = layer.color;
+        b.innerHTML = `<span>${layer.label}</span><div class="badge-x" onclick="removeHighlight(${i})">✕</div>`;
         c.appendChild(b);
     });
-    $('exportControls').style.display=activeLayers.length?'flex':'none';
-    $('statLayers').textContent=activeLayers.length;
-    if(allPlanetsList.length) renderHeatmap();
+    $('exportControls').style.display = activeLayers.length ? 'flex' : 'none';
+    $('statLayers').textContent = activeLayers.length;
+    updateChart();
 }
-window.removeHighlight=function(i){ activeLayers.splice(i,1); renderHighlights(); renderAllianceSummaries(); };
-function nextColor(){ const c=palette[colorIndex]; colorIndex=(colorIndex+1)%palette.length; return c; }
 
-$('addPlayerBtn').addEventListener('click',()=>{
-    const val=$('playerName').value.trim().toLowerCase(); if(!val) return;
-    let id=null;
-    for(const [pid,d] of Object.entries(playersMap)) if(d.nameLower===val){ id=pid; break; }
-    if(!id) return alert('Giocatore non trovato.');
-    const pd=playersMap[id];
-    const spots=allPlanetsList.filter(p=>p.playerId===id).map(p=>({g:p.g,s:p.s,p:p.p,playerName:pd.name,playerStatus:pd.statusText}));
-    if(!spots.length) return alert('Il giocatore non ha pianeti registrati.');
-    activeLayers.push({type:'player',label:pd.name,allianceTag:'',color:nextColor(),dataset:spots});
-    $('playerName').value=''; renderHighlights(); renderAllianceSummaries();
+window.removeHighlight = function(i) {
+    activeLayers.splice(i, 1);
+    renderHighlights();
+    renderAllianceSummaries();
+};
+function nextColor() { const c = palette[colorIndex]; colorIndex = (colorIndex+1) % palette.length; return c; }
+
+// ─── ADD PLAYER ───────────────────────────────────────────────────────────────
+$('addPlayerBtn').addEventListener('click', () => {
+    const val = $('playerName').value.trim().toLowerCase(); if (!val) return;
+    let id = null;
+    for (const [pid, d] of Object.entries(playersMap)) if (d.nameLower === val) { id = pid; break; }
+    if (!id) return alert('Giocatore non trovato.');
+    const pd = playersMap[id];
+    const spots = allPlanetsList.filter(p => p.playerId === id)
+        .map(p => ({ g: p.g, s: p.s, p: p.p, playerName: pd.name, playerStatus: pd.statusText }));
+    if (!spots.length) return alert('Il giocatore non ha pianeti registrati.');
+    activeLayers.push({ type:'player', label: pd.name, allianceTag:'', color: nextColor(), dataset: spots });
+    $('playerName').value = '';
+    renderHighlights(); renderAllianceSummaries();
 });
 
-$('addAllianceBtn').addEventListener('click',()=>{
-    const val=$('allianceInput').value.trim().toLowerCase(); if(!val) return;
-    let id=null;
-    for(const [aid,d] of Object.entries(alliancesMap)){
-        const f=`[${d.tag}] ${d.name}`.toLowerCase();
-        if(f===val||d.tag.toLowerCase()===val||d.name.toLowerCase()===val){ id=aid; break; }
+// ─── ADD ALLIANCE ─────────────────────────────────────────────────────────────
+$('addAllianceBtn').addEventListener('click', () => {
+    const val = $('allianceInput').value.trim().toLowerCase(); if (!val) return;
+    let id = null;
+    for (const [aid, d] of Object.entries(alliancesMap)) {
+        const f = `[${d.tag}] ${d.name}`.toLowerCase();
+        if (f === val || d.tag.toLowerCase() === val || d.name.toLowerCase() === val) { id = aid; break; }
     }
-    if(!id) return alert('Alleanza non trovata.');
-    const spots=allPlanetsList.filter(p=>playersMap[p.playerId]?.allianceId===id).map(p=>{
-        const pl=playersMap[p.playerId];
-        return {g:p.g,s:p.s,p:p.p,playerName:pl.name,playerStatus:pl.statusText};
-    });
-    if(!spots.length) return alert('Nessun pianeta trovato per questa alleanza.');
-    const color=nextColor(), tag=alliancesMap[id].tag;
-    activeLayers.push({type:'alliance',label:`[${tag}]`,allianceTag:tag,color,dataset:spots});
-    $('allianceInput').value=''; renderHighlights(); renderAllianceSummaries();
+    if (!id) return alert('Alleanza non trovata.');
+    const spots = allPlanetsList.filter(p => playersMap[p.playerId]?.allianceId === id)
+        .map(p => { const pl = playersMap[p.playerId]; return { g: p.g, s: p.s, p: p.p, playerName: pl.name, playerStatus: pl.statusText }; });
+    if (!spots.length) return alert('Nessun pianeta trovato per questa alleanza.');
+    const color = nextColor(), tag = alliancesMap[id].tag;
+    activeLayers.push({ type:'alliance', label:`[${tag}]`, allianceTag: tag, color, dataset: spots });
+    $('allianceInput').value = '';
+    renderHighlights(); renderAllianceSummaries();
 });
 
-function getExportData(){
-    return activeLayers.flatMap(l=>l.dataset.map(p=>({name:p.playerName,tag:l.allianceTag,g:p.g,s:p.s,p:p.p,status:p.playerStatus})))
-        .sort((a,b)=>a.g-b.g||a.s-b.s||a.p-b.p);
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function getExportData() {
+    return activeLayers.flatMap(l => l.dataset.map(p => ({
+        name: p.playerName, tag: l.allianceTag, g: p.g, s: p.s, p: p.p, status: p.playerStatus
+    }))).sort((a,b) => a.g-b.g || a.s-b.s || a.p-b.p);
 }
-$('copyDataBtn').addEventListener('click',()=>{
-    const data=getExportData(); if(!data.length) return alert('Nessun dato da copiare.');
-    let txt='Posizioni OGame\n'+'─'.repeat(28)+'\n';
-    data.forEach(d=>txt+=`${d.tag?'['+d.tag+'] ':''}${d.name} → [${d.g}:${d.s}:${d.p}] (${d.status})\n`);
-    navigator.clipboard.writeText(txt).then(()=>{ const o=$('copyDataBtn').innerHTML; $('copyDataBtn').innerHTML='✅ Copiato!'; setTimeout(()=>{ $('copyDataBtn').innerHTML=o; },2000); });
+$('copyDataBtn').addEventListener('click', () => {
+    const data = getExportData(); if (!data.length) return alert('Nessun dato da copiare.');
+    let txt = 'Posizioni OGame\n' + '─'.repeat(28) + '\n';
+    data.forEach(d => txt += `${d.tag?'['+d.tag+'] ':''}${d.name} → [${d.g}:${d.s}:${d.p}] (${d.status})\n`);
+    navigator.clipboard.writeText(txt).then(() => {
+        const o = $('copyDataBtn').innerHTML;
+        $('copyDataBtn').innerHTML = '✅ Copiato!';
+        setTimeout(() => { $('copyDataBtn').innerHTML = o; }, 2000);
+    });
 });
-$('exportCsvBtn').addEventListener('click',()=>{
-    const data=getExportData(); if(!data.length) return alert('Nessun dato da esportare.');
-    let csv='Giocatore,Alleanza,Galassia,Sistema,Posizione,Coordinate,Stato\n';
-    data.forEach(d=>csv+=`"${d.name.replace(/"/g,'""')}","${d.tag||''}",${d.g},${d.s},${d.p},"[${d.g}:${d.s}:${d.p}]","${d.status}"\n`);
-    const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),download:'ogame_posizioni.csv'});
+$('exportCsvBtn').addEventListener('click', () => {
+    const data = getExportData(); if (!data.length) return alert('Nessun dato da esportare.');
+    let csv = 'Giocatore,Alleanza,Galassia,Sistema,Posizione,Coordinate,Stato\n';
+    data.forEach(d => csv += `"${d.name.replace(/"/g,'""')}","${d.tag||''}",${d.g},${d.s},${d.p},"[${d.g}:${d.s}:${d.p}]","${d.status}"\n`);
+    const a = Object.assign(document.createElement('a'), {
+        href: URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})),
+        download: 'ogame_posizioni.csv'
+    });
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
 });
 </script>
