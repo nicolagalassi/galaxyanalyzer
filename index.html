@@ -2,69 +2,219 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OGame Universe Tracker Completo</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #121212; color: #ffffff; padding: 20px; margin: 0; }
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --input-bg: #2a2a2a;
+            --border-color: #333;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+            --primary: #007bff;
+            --primary-hover: #0056b3;
+            --success: #28a745;
+            --success-hover: #218838;
+            --accent: #ffeb3b;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            padding: 15px; 
+            margin: 0; 
+            line-height: 1.5;
+        }
+        
+        h1 { font-size: 1.8rem; margin-top: 0; text-align: center; color: var(--accent); }
+        h2 { font-size: 1.4rem; border-bottom: 2px solid var(--border-color); padding-bottom: 5px; }
         
         /* Contenitori e Controlli */
-        .panel { background-color: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .panel { 
+            background-color: var(--panel-bg); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4); 
+            border: 1px solid #2a2a2a;
+        }
+        
+        .controls { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+            align-items: flex-end; 
+        }
+        
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            flex: 1 1 200px; /* Flexbox per adattarsi allo schermo */
+        }
+
+        .input-group label { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
         
         /* Form Elementi */
-        select, input[type="text"], button { padding: 10px; border-radius: 4px; border: 1px solid #333; background: #2a2a2a; color: white; font-size: 14px; }
-        input[type="text"] { width: 220px; }
-        button { background-color: #007bff; border: none; cursor: pointer; font-weight: bold; transition: background 0.3s; }
-        button:hover { background-color: #0056b3; }
-        button:disabled { background-color: #555; cursor: not-allowed; }
-        .btn-success { background-color: #28a745; }
-        .btn-success:hover { background-color: #218838; }
-        .btn-danger { background-color: #dc3545; }
-        .btn-danger:hover { background-color: #c82333; }
+        select, input[type="text"], button { 
+            padding: 12px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-color); 
+            background: var(--input-bg); 
+            color: white; 
+            font-size: 1rem; 
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        select:focus, input[type="text"]:focus { border-color: var(--primary); }
+        
+        input[type="text"] { width: 100%; box-sizing: border-box; }
+        
+        button { 
+            background-color: var(--primary); 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: all 0.3s ease; 
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        button:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        button:disabled { background-color: #555; cursor: not-allowed; transform: none; }
+        
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: var(--success-hover); }
+        .btn-export { background-color: #17a2b8; }
+        .btn-export:hover { background-color: #138496; }
+
+        .flex-row { display: flex; gap: 8px; }
+        .flex-row input { flex: 1; }
+        .flex-row button { padding: 12px 18px; font-size: 1.2rem; }
         
         /* Grafico, Badge e Tabella */
-        .chart-container { background-color: #1e1e1e; padding: 20px; border-radius: 8px; height: 65vh; position: relative; width: 100%; box-sizing: border-box; margin-bottom: 20px; }
-        #loadingMsg { color: #ffeb3b; font-weight: bold; display: none; margin-left: 15px; }
+        .chart-container { 
+            background-color: var(--panel-bg); 
+            padding: 15px; 
+            border-radius: 10px; 
+            height: 60vh; 
+            min-height: 400px;
+            position: relative; 
+            width: 100%; 
+            box-sizing: border-box; 
+            margin-bottom: 20px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            border: 1px solid #2a2a2a;
+        }
         
-        #activeHighlights { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .badge-close { cursor: pointer; background: rgba(0,0,0,0.3); border-radius: 50%; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; transition: background 0.2s; }
-        .badge-close:hover { background: rgba(0,0,0,0.7); }
+        #loadingMsg { color: var(--accent); font-weight: bold; display: none; width: 100%; text-align: center; margin-top: 10px; }
+        
+        #activeHighlights { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+        .badge { 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            font-size: 0.9rem; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+        }
+        .badge-close { 
+            cursor: pointer; 
+            background: rgba(0,0,0,0.4); 
+            border-radius: 50%; 
+            width: 24px; 
+            height: 24px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            transition: background 0.2s; 
+        }
+        .badge-close:hover { background: rgba(0,0,0,0.8); }
 
-        .divider { width: 100%; height: 1px; background-color: #444; margin: 15px 0; }
+        .divider { width: 100%; height: 1px; background-color: var(--border-color); margin: 20px 0; }
 
-        .checkbox-container { display: flex; align-items: center; gap: 8px; background: #2a2a2a; padding: 10px; border-radius: 4px; border: 1px solid #333; cursor: pointer; }
-        .checkbox-container input { cursor: pointer; width: 16px; height: 16px; }
+        .checkbox-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            background: var(--input-bg); 
+            padding: 12px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-color); 
+            cursor: pointer; 
+            font-size: 0.9rem;
+            user-select: none;
+            flex: 1;
+            justify-content: center;
+        }
+        .checkbox-container input { cursor: pointer; width: 18px; height: 18px; accent-color: var(--primary); }
 
-        /* Stili Tabelle */
-        .summary-panel { background-color: #1e1e1e; padding: 20px; border-radius: 8px; overflow-x: auto; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px; margin-bottom: 15px; }
-        th, td { padding: 10px; border: 1px solid #333; }
-        th { background-color: #2a2a2a; color: #007bff; }
+        /* Stili Tabelle per Mobile */
+        .summary-panel { 
+            background-color: var(--panel-bg); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            border: 1px solid #2a2a2a;
+        }
+        
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem; min-width: 600px; }
+        th, td { padding: 12px; border: 1px solid var(--border-color); }
+        th { background-color: var(--input-bg); color: var(--primary); font-weight: bold; }
         tr:nth-child(even) { background-color: #242424; }
         tr:hover { background-color: #333; }
-        .galaxy-col { font-weight: bold; background-color: #2a2a2a; color: #ffeb3b; width: 100px; }
+        .galaxy-col { font-weight: bold; background-color: var(--input-bg); color: var(--accent); width: 80px; }
         
-        /* Stili Lista Giocatori nelle celle */
-        .player-item { font-size: 13px; padding: 4px 0; border-bottom: 1px dashed #444; color: #ddd; }
+        .player-item { font-size: 0.85rem; padding: 5px 0; border-bottom: 1px dashed #444; color: #ddd; }
         .player-item:last-child { border-bottom: none; }
 
-        /* Stili Posizioni Libere e Tattica */
-        .scrollable-list { max-height: 80px; overflow-y: auto; font-size: 12px; color: #bbb; line-height: 1.5; padding-right: 5px; }
-        .scrollable-list::-webkit-scrollbar { width: 6px; }
-        .scrollable-list::-webkit-scrollbar-track { background: #2a2a2a; }
-        .scrollable-list::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
-        .slot-count { font-weight: bold; color: #4caf50; margin-top: 8px; font-size: 13px; border-top: 1px solid #444; padding-top: 4px; }
-        .tactical-card { background: #2a2a2a; border-left: 5px solid #dc3545; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
-        .tactical-card h4 { margin: 0 0 10px 0; color: #ffeb3b; font-size: 16px; }
-        .tactical-card p { margin: 5px 0; font-size: 14px; }
+        .scrollable-list { max-height: 80px; overflow-y: auto; font-size: 0.8rem; color: #bbb; line-height: 1.6; padding-right: 5px; }
+        .scrollable-list::-webkit-scrollbar { width: 4px; }
+        .scrollable-list::-webkit-scrollbar-track { background: var(--input-bg); }
+        .scrollable-list::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+        .slot-count { font-weight: bold; color: var(--success); margin-top: 8px; font-size: 0.85rem; border-top: 1px solid #444; padding-top: 6px; }
+
+        #exportControls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        #exportControls button {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* Media Queries per Smartphone */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.5rem; }
+            .panel { padding: 15px; }
+            .checkbox-container { justify-content: flex-start; }
+            .flex-row button { padding: 12px 15px; }
+            th, td { padding: 8px; font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
 
-    <h1>Tracker Strategico Universo OGame</h1>
+    <h1>Tracker Strategico OGame</h1>
     
     <div class="panel">
         <div class="controls" id="loadSection">
@@ -86,47 +236,50 @@
                 </select>
             </div>
 
-            <button id="loadBtn">1. Scarica Dati Server</button>
-            <span id="loadingMsg">Scaricamento dati in corso, attendere...</span>
+            <div class="input-group">
+                <button id="loadBtn" style="height: 100%; padding: 12px;">1. Scarica Dati Server</button>
+            </div>
+            <span id="loadingMsg">Scaricamento dati in corso...</span>
         </div>
 
         <div class="divider" id="dividerLine" style="display: none;"></div>
 
         <div class="controls" id="actionSection" style="display: none;">
             <div class="input-group">
-                <label for="playerName">Aggiungi Giocatore:</label>
-                <div style="display: flex; gap: 5px;">
+                <label for="playerName">Cerca Giocatore:</label>
+                <div class="flex-row">
                     <input type="text" id="playerName" placeholder="Es. Legolas">
                     <button id="addPlayerBtn" class="btn-success">+</button>
                 </div>
             </div>
 
             <div class="input-group">
-                <label for="allianceInput">Aggiungi Alleanza (Nome o Tag):</label>
-                <div style="display: flex; gap: 5px; align-items: stretch;">
-                    <input type="text" id="allianceInput" list="allianceList" placeholder="Scrivi per cercare...">
+                <label for="allianceInput">Cerca Alleanza:</label>
+                <div class="flex-row">
+                    <input type="text" id="allianceInput" list="allianceList" placeholder="Es. Nome o Tag">
                     <datalist id="allianceList"></datalist>
                     <button id="addAllianceBtn" class="btn-success">+</button>
-                    <label class="checkbox-container" style="font-size: 12px; padding: 0 10px; margin-left: 5px;">
-                        <input type="checkbox" id="splitAllianceColors">
-                        Separati
-                    </label>
                 </div>
             </div>
 
-            <div class="input-group" style="flex-direction: row; gap: 15px;">
+            <div class="input-group" style="flex-direction: row; flex-wrap: wrap; gap: 10px;">
                 <label class="checkbox-container">
                     <input type="checkbox" id="toggleFreeSlots">
-                    Mostra Slot 8/15
+                    Slot 8/15
                 </label>
                 <label class="checkbox-container">
                     <input type="checkbox" id="toggleBackground" checked>
-                    Sfondo Galassia
+                    Sfondo Mappa
                 </label>
             </div>
         </div>
 
         <div id="activeHighlights"></div>
+        
+        <div id="exportControls" style="display: none;">
+            <button id="copyDataBtn" class="btn-export">📋 Copia Elenco Posizioni</button>
+            <button id="exportCsvBtn" class="btn-export">⬇️ Scarica CSV</button>
+        </div>
     </div>
 
     <div class="chart-container">
@@ -134,24 +287,21 @@
     </div>
 
     <div class="summary-panel" id="allianceSummaryPanel" style="display: none;">
-        <h2>Dettaglio Combinato Alleanze Evidenziate</h2>
-        <p style="color: #bbb; font-size: 14px; margin-top: -10px; margin-bottom: 15px;">
-            Distribuzione dei giocatori delle alleanze attive per settori. Tra parentesi il numero di pianeti.
+        <h2>Dettaglio Alleanze Evidenziate</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -5px; margin-bottom: 15px;">
+            Distribuzione dei giocatori. Fai scorrere la tabella lateralmente per vedere tutte le colonne.
         </p>
-        <div id="allianceTableContainer"></div>
+        <div class="table-responsive" id="allianceTableContainer"></div>
     </div>
 
     <div class="summary-panel" id="summaryPanel" style="display: none;">
-        <h2>Riassunto Densit� Pianeti (Globale)</h2>
-        <div id="tableContainer"></div>
+        <h2>Densità Pianeti (Globale)</h2>
+        <div class="table-responsive" id="tableContainer"></div>
     </div>
 
     <div class="summary-panel" id="freeSlotsPanel" style="display: none;">
         <h2>Posizioni Strategiche Libere (Slot 8 e 15)</h2>
-        <p style="color: #bbb; font-size: 14px; margin-top: -10px; margin-bottom: 15px;">
-            Elenco dei sistemi in cui la posizione specificata risulta attualmente vuota.
-        </p>
-        <div id="freeSlotsContainer"></div>
+        <div class="table-responsive" id="freeSlotsContainer"></div>
     </div>
 
     <script>
@@ -169,23 +319,11 @@
         // --- STATO ATTIVO ---
         let activeLayers = []; 
         
-        // Tavolozza colori espansa per supportare alleanze con molti giocatori
         const colorPalette = [
-            'rgba(255, 99, 132, 1)',   // Rosso
-            'rgba(75, 192, 192, 1)',   // Verde acqua
-            'rgba(255, 206, 86, 1)',   // Giallo
-            'rgba(153, 102, 255, 1)',  // Viola
-            'rgba(255, 159, 64, 1)',   // Arancione
-            'rgba(54, 235, 114, 1)',   // Verde brillante
-            'rgba(235, 54, 184, 1)',   // Fucsia
-            'rgba(255, 255, 255, 1)',  // Bianco
-            'rgba(0, 123, 255, 1)',    // Blu acceso
-            'rgba(232, 62, 140, 1)',   // Rosa intenso
-            'rgba(32, 201, 151, 1)',   // Smeraldo
-            'rgba(253, 126, 20, 1)',   // Arancio scuro
-            'rgba(111, 66, 193, 1)',   // Indaco
-            'rgba(40, 167, 69, 1)',    // Verde scuro
-            'rgba(23, 162, 184, 1)'    // Ciano
+            'rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)', 
+            'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)', 'rgba(54, 235, 114, 1)', 
+            'rgba(235, 54, 184, 1)', 'rgba(255, 255, 255, 1)', 'rgba(0, 123, 255, 1)', 
+            'rgba(232, 62, 140, 1)', 'rgba(32, 201, 151, 1)', 'rgba(253, 126, 20, 1)'
         ];
         let colorIndex = 0;
 
@@ -205,9 +343,9 @@
         const allianceTableContainer = document.getElementById('allianceTableContainer');
         const freeSlotsPanel = document.getElementById('freeSlotsPanel');
         const freeSlotsContainer = document.getElementById('freeSlotsContainer');
-        // Elementi tattici commentati per evitare errori in console
-        // const tacticalPanel = document.getElementById('tacticalPanel');
-        // const tacticalResults = document.getElementById('tacticalResults');
+        const exportControls = document.getElementById('exportControls');
+        const copyDataBtn = document.getElementById('copyDataBtn');
+        const exportCsvBtn = document.getElementById('exportCsvBtn');
 
         async function fetchXML(targetUrl) {
             const response = await fetch(proxyBaseUrl + encodeURIComponent(targetUrl));
@@ -258,7 +396,7 @@
             const universeUrl = universeSelect.value;
             if (!universeUrl) return;
 
-            loadingMsg.style.display = 'inline-block';
+            loadingMsg.style.display = 'block';
             loadBtn.disabled = true;
             countrySelect.disabled = true;
             universeSelect.disabled = true;
@@ -284,7 +422,6 @@
 
                 dividerLine.style.display = 'block';
                 actionSection.style.display = 'flex';
-                // tacticalPanel.style.display = 'block'; // Commentato
                 summaryPanel.style.display = 'block';
                 
                 activeLayers = []; 
@@ -300,9 +437,8 @@
                 }
 
                 renderAllianceSummaries(); 
-                // tacticalResults.innerHTML = ''; // Commentato
 
-                loadBtn.textContent = "Dati Aggiornati ?";
+                loadBtn.textContent = "Dati Aggiornati ✓";
                 setTimeout(() => { loadBtn.textContent = "1. Ricarica Dati Server"; }, 3000);
 
             } catch (error) {
@@ -380,7 +516,8 @@
                 
                 if (galaxy > maxGalaxies) continue;
 
-                allPlanetsList.push({ g: galaxy, s: system, playerId: playerId });
+                // Salvataggio preciso di G, S, e Posizione
+                allPlanetsList.push({ g: galaxy, s: system, p: position, playerId: playerId });
                 occupiedPositions.add(`${galaxy}-${system}-${position}`);
 
                 const key = `${galaxy}-${system}`;
@@ -395,7 +532,7 @@
             }));
 
             baseDensityDataset = {
-                label: 'Densit� Universo',
+                label: 'Densità Universo',
                 data: universeDataArray,
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 0.4)',
@@ -405,83 +542,6 @@
             
             initChart();
         }
-
-        // --- MOTORE ANALISI TATTICA (COMMENTATO TEMPORANEAMENTE) ---
-        function findAllianceIdByString(inputVal) {
-            if (!inputVal) return null;
-            let targetId = null;
-            for (const [id, data] of Object.entries(alliancesMap)) {
-                const fullString = `[${data.tag}] ${data.name}`.toLowerCase();
-                if (fullString === inputVal || data.tag.toLowerCase() === inputVal || data.name.toLowerCase() === inputVal) {
-                    targetId = id;
-                    break;
-                }
-            }
-            return targetId;
-        }
-
-        /* document.getElementById('generateTacticalBtn').addEventListener('click', () => {
-            const allyInput = document.getElementById('allyAllianceInput').value.trim().toLowerCase();
-            const enemyInput = document.getElementById('enemyAllianceInput').value.trim().toLowerCase();
-
-            const allyId = findAllianceIdByString(allyInput);
-            const enemyId = findAllianceIdByString(enemyInput);
-
-            if (!allyId) return alert("Alleanza NOSTRA non trovata. Controlla il nome.");
-            if (!enemyId) return alert("Alleanza NEMICA non trovata. Controlla il nome.");
-            if (allyId === enemyId) return alert("Le due alleanze non possono essere la stessa!");
-
-            let enemyPlanets = allPlanetsList.filter(p => playersMap[p.playerId] && playersMap[p.playerId].allianceId === enemyId);
-            let allyPlanets = allPlanetsList.filter(p => playersMap[p.playerId] && playersMap[p.playerId].allianceId === allyId);
-
-            if (enemyPlanets.length === 0) return alert("L'alleanza nemica non ha pianeti registrati.");
-
-            let clusters = {};
-            enemyPlanets.forEach(p => {
-                let bucketIdx = Math.floor((p.s - 1) / 30);
-                let key = `${p.g}-${bucketIdx}`;
-                
-                if (!clusters[key]) clusters[key] = { g: p.g, b: bucketIdx, planets: [], players: new Set() };
-                clusters[key].planets.push(p);
-                clusters[key].players.add(playersMap[p.playerId].name);
-            });
-
-            let sortedClusters = Object.values(clusters).sort((a, b) => b.planets.length - a.planets.length).slice(0, 5);
-
-            let html = `<h3 style="color: #ffeb3b; border-bottom: 1px solid #444; padding-bottom: 10px;">Risultati Analisi: Bersagli Primari (Top 5 Cluster Nemici)</h3>`;
-
-            sortedClusters.forEach((cl, index) => {
-                let startSys = (cl.b * 30) + 1;
-                let endSys = Math.min((cl.b + 1) * 30, 499);
-
-                let landingZones = [];
-                for (let s = startSys; s <= endSys; s++) {
-                    let freeCount = 0;
-                    for (let pos = 4; pos <= 12; pos++) { 
-                        if (!occupiedPositions.has(`${cl.g}-${s}-${pos}`)) freeCount++;
-                    }
-                    if (freeCount > 0) landingZones.push({ s: s, free: freeCount });
-                }
-                
-                landingZones.sort((a,b) => b.free - a.free);
-                let bestZones = landingZones.slice(0, 4).map(z => `<span style="background: #1e1e1e; padding: 2px 6px; border-radius: 4px; border: 1px solid #4caf50;">[${cl.g}:${z.s}] (${z.free} slot liberi)</span>`).join(' ');
-
-                let playersInGalaxy = new Set(allyPlanets.filter(p => p.g === cl.g).map(p => playersMap[p.playerId].name));
-                let allAllyPlayers = new Set(allyPlanets.map(p => playersMap[p.playerId].name));
-                let recommendedPlayers = [...allAllyPlayers].filter(name => !playersInGalaxy.has(name));
-
-                html += `
-                <div class="tactical-card">
-                    <h4>?? Obiettivo #${index + 1} &mdash; Galassia ${cl.g}, Sistemi ${startSys} - ${endSys}</h4>
-                    <p><strong style="color: #ff9800;">Forza Nemica:</strong> ${cl.planets.length} pianeti (Posseduti da: <em>${[...cl.players].join(', ')}</em>)</p>
-                    <p><strong style="color: #4caf50;">Zone di Atterraggio Ideali (Slot 4-12 liberi):</strong> <br> ${bestZones || 'Nessun sistema vuoto in questo settore'}</p>
-                    <p><strong style="color: #007bff;">Alleati consigliati per Colonia Mobile (Assenti in G${cl.g}):</strong> <br> ${recommendedPlayers.length > 0 ? recommendedPlayers.join(', ') : 'Tutti i membri hanno gi� basi in questa galassia.'}</p>
-                </div>`;
-            });
-
-            tacticalResults.innerHTML = html;
-        });
-        */
 
         // --- TABELLA POSIZIONI LIBERE (8 e 15) ---
         function generateFreeSlotsSummary() {
@@ -511,15 +571,15 @@
                         <td class="galaxy-col">G ${g}</td>
                         <td style="text-align: left; vertical-align: top; width: 40%;">
                             <div class="scrollable-list">
-                                ${free8.length > 0 ? free8.join(', ') : '<span style="color: #ff4c4c;">Nessuna posizione libera</span>'}
+                                ${free8.length > 0 ? free8.join(', ') : '<span style="color: #ff4c4c;">Nessuna</span>'}
                             </div>
-                            <div class="slot-count">Totale libere: ${free8.length}</div>
+                            <div class="slot-count">Totale: ${free8.length}</div>
                         </td>
                         <td style="text-align: left; vertical-align: top; width: 40%;">
                             <div class="scrollable-list">
-                                ${free15.length > 0 ? free15.join(', ') : '<span style="color: #ff4c4c;">Nessuna posizione libera</span>'}
+                                ${free15.length > 0 ? free15.join(', ') : '<span style="color: #ff4c4c;">Nessuna</span>'}
                             </div>
-                            <div class="slot-count">Totale libere: ${free15.length}</div>
+                            <div class="slot-count">Totale: ${free15.length}</div>
                         </td>
                     </tr>
                 `;
@@ -538,7 +598,7 @@
             }
         });
 
-        // --- TABELLA DENSIT� GLOBALE ---
+        // --- TABELLA DENSITÀ GLOBALE ---
         function generateDensitySummary() {
             const ranges = {};
             for(let g = 1; g <= maxGalaxies; g++) ranges[g] = [0,0,0,0,0];
@@ -581,7 +641,7 @@
                         <td>${rData[2]}</td>
                         <td>${rData[3]}</td>
                         <td>${rData[4]}</td>
-                        <td style="font-weight:bold; color:#4caf50;">${total}</td>
+                        <td style="font-weight:bold; color:var(--success);">${total}</td>
                     </tr>
                 `;
             }
@@ -720,7 +780,9 @@
                                     } else {
                                         const statusStr = ctx.raw.playerStatus ? ` (${ctx.raw.playerStatus})` : '';
                                         const playerInfo = ctx.raw.playerName ? ` - ${ctx.raw.playerName}` : '';
-                                        return `${ctx.dataset.label}${playerInfo}${statusStr} -> [${ctx.raw.y}:${ctx.raw.x}]`;
+                                        // Ora mostra anche la posizione esatta nel tooltip
+                                        const pos = ctx.raw.p ? `:${ctx.raw.p}` : '';
+                                        return `${ctx.dataset.label}${playerInfo}${statusStr} -> [${ctx.raw.y}:${ctx.raw.x}${pos}]`;
                                     }
                                 }
                             }
@@ -755,6 +817,13 @@
                 `;
                 container.appendChild(badge);
             });
+
+            // Mostra o nascondi bottoni Export
+            if(activeLayers.length > 0) {
+                exportControls.style.display = 'flex';
+            } else {
+                exportControls.style.display = 'none';
+            }
         }
 
         window.removeHighlight = function(index) {
@@ -770,6 +839,7 @@
             return color;
         }
 
+        // --- AGGIUNTA GIOCATORI E ALLEANZE ---
         document.getElementById('addPlayerBtn').addEventListener('click', () => {
             const inputVal = document.getElementById('playerName').value.trim().toLowerCase();
             if (!inputVal) return;
@@ -788,7 +858,8 @@
             const playerSpots = allPlanetsList
                 .filter(p => p.playerId === targetId)
                 .map(p => ({ 
-                    x: p.s, y: p.g, r: 8, 
+                    x: p.s, y: p.g, p: p.p, r: 8, 
+                    playerName: pData.name, // Aggiunto per export
                     playerStatus: pData.statusText 
                 }));
 
@@ -797,6 +868,7 @@
             activeLayers.push({
                 type: 'player',
                 label: `Ply: ${pData.name}`,
+                allianceTag: '', // Vuoto per player singolo
                 dataset: {
                     label: `Ply: ${pData.name}`,
                     data: playerSpots,
@@ -815,89 +887,118 @@
             const inputVal = document.getElementById('allianceInput').value.trim().toLowerCase();
             if (!inputVal) return;
 
-            const targetId = findAllianceIdByString(inputVal);
+            let targetId = null;
+            for (const [id, data] of Object.entries(alliancesMap)) {
+                const fullString = `[${data.tag}] ${data.name}`.toLowerCase();
+                if (fullString === inputVal || data.tag.toLowerCase() === inputVal || data.name.toLowerCase() === inputVal) {
+                    targetId = id;
+                    break;
+                }
+            }
 
             if (!targetId) return alert("Alleanza non trovata.");
 
-            const splitColors = document.getElementById('splitAllianceColors').checked;
+            const allianceSpots = [];
+            allPlanetsList.forEach(p => {
+                const player = playersMap[p.playerId];
+                if (player && player.allianceId === targetId) {
+                    allianceSpots.push({ 
+                        x: p.s, y: p.g, p: p.p, r: 7, 
+                        playerName: player.name, 
+                        playerStatus: player.statusText 
+                    });
+                }
+            });
+
+            if (allianceSpots.length === 0) return alert("Nessun pianeta trovato per questa alleanza.");
+
+            const layerColor = getNextColor();
             const allianceTag = alliancesMap[targetId].tag;
 
-            if (splitColors) {
-                // Raggruppa i pianeti per giocatore
-                const playersInAlly = {};
-                allPlanetsList.forEach(p => {
-                    const player = playersMap[p.playerId];
-                    if (player && player.allianceId === targetId) {
-                        if (!playersInAlly[player.name]) {
-                            playersInAlly[player.name] = { spots: [] };
-                        }
-                        playersInAlly[player.name].spots.push({
-                            x: p.s, y: p.g, r: 7,
-                            playerName: player.name,
-                            playerStatus: player.statusText
-                        });
-                    }
-                });
-
-                const playerNames = Object.keys(playersInAlly);
-                if (playerNames.length === 0) return alert("Nessun pianeta trovato per questa alleanza.");
-
-                // Aggiunge un layer diverso per ogni giocatore
-                playerNames.forEach(pName => {
-                    const layerColor = getNextColor();
-                    activeLayers.push({
-                        type: 'alliance',
-                        label: `[${allianceTag}] ${pName}`,
-                        allianceTag: allianceTag,
-                        color: layerColor,
-                        dataset: {
-                            label: `[${allianceTag}] ${pName}`,
-                            data: playersInAlly[pName].spots,
-                            backgroundColor: layerColor,
-                            borderColor: 'rgba(255,255,255,0.8)',
-                            borderWidth: 1.5
-                        }
-                    });
-                });
-
-            } else {
-                // Logica originale: un solo layer globale per l'alleanza
-                const allianceSpots = [];
-
-                allPlanetsList.forEach(p => {
-                    const player = playersMap[p.playerId];
-                    if (player && player.allianceId === targetId) {
-                        allianceSpots.push({ 
-                            x: p.s, y: p.g, r: 7, 
-                            playerName: player.name, 
-                            playerStatus: player.statusText 
-                        });
-                    }
-                });
-
-                if (allianceSpots.length === 0) return alert("Nessun pianeta trovato per questa alleanza.");
-
-                const layerColor = getNextColor();
-
-                activeLayers.push({
-                    type: 'alliance',
+            activeLayers.push({
+                type: 'alliance',
+                label: `Ally: [${allianceTag}]`,
+                allianceTag: allianceTag,
+                color: layerColor,
+                dataset: {
                     label: `Ally: [${allianceTag}]`,
-                    allianceTag: allianceTag,
-                    color: layerColor,
-                    dataset: {
-                        label: `Ally: [${allianceTag}]`,
-                        data: allianceSpots,
-                        backgroundColor: layerColor,
-                        borderColor: 'rgba(255,255,255,0.8)',
-                        borderWidth: 1.5
-                    }
-                });
-            }
+                    data: allianceSpots,
+                    backgroundColor: layerColor,
+                    borderColor: 'rgba(255,255,255,0.8)',
+                    borderWidth: 1.5
+                }
+            });
 
             document.getElementById('allianceInput').value = ""; 
             renderHighlights();
             updateChart();
             renderAllianceSummaries(); 
+        });
+
+        // --- SISTEMA DI ESPORTAZIONE (COPIA / CSV) ---
+        function getExportData() {
+            let exportList = [];
+            activeLayers.forEach(layer => {
+                layer.dataset.data.forEach(p => {
+                    exportList.push({
+                        name: p.playerName,
+                        tag: layer.allianceTag,
+                        g: p.y,
+                        s: p.x,
+                        p: p.p,
+                        status: p.playerStatus
+                    });
+                });
+            });
+
+            // Ordina per Galassia -> Sistema -> Posizione
+            exportList.sort((a, b) => {
+                if (a.g !== b.g) return a.g - b.g;
+                if (a.s !== b.s) return a.s - b.s;
+                return a.p - b.p;
+            });
+
+            return exportList;
+        }
+
+        copyDataBtn.addEventListener('click', () => {
+            const data = getExportData();
+            if (data.length === 0) return alert("Nessun dato da copiare.");
+
+            let text = "Elenco Posizioni OGame\n========================\n";
+            data.forEach(d => {
+                let tagStr = d.tag ? `[${d.tag}] ` : '';
+                text += `${tagStr}${d.name} -> [${d.g}:${d.s}:${d.p}] (${d.status})\n`;
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = copyDataBtn.innerHTML;
+                copyDataBtn.innerHTML = "✅ Testo Copiato!";
+                setTimeout(() => { copyDataBtn.innerHTML = originalText; }, 2000);
+            }).catch(err => {
+                alert("Errore durante la copia.");
+            });
+        });
+
+        exportCsvBtn.addEventListener('click', () => {
+            const data = getExportData();
+            if (data.length === 0) return alert("Nessun dato da esportare.");
+
+            let csv = "Giocatore,Alleanza,Galassia,Sistema,Posizione,Coordinate,Stato\n";
+            data.forEach(d => {
+                let safeName = d.name.replace(/"/g, '""');
+                let coords = `[${d.g}:${d.s}:${d.p}]`;
+                csv += `"${safeName}","${d.tag || ''}",${d.g},${d.s},${d.p},"${coords}","${d.status}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "ogame_posizioni.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
 
     </script>
