@@ -85,7 +85,7 @@
         <p class="text-scifi-muted mt-2 text-sm uppercase tracking-widest">Inizializzazione Sistema di Mappatura</p>
     </header>
     
-    <div class="bg-scifi-panel border border-scifi-accent/30 rounded-lg p-5 mb-6 shadow-neon-cyan/50 backdrop-blur-sm">
+    <div class="bg-scifi-panel border border-scifi-accent/30 rounded-lg p-5 mb-6 shadow-neon-cyan/50 backdrop-blur-sm relative z-10">
         <h2 class="text-xl font-semibold text-scifi-accent mb-4 border-b border-scifi-border pb-2 uppercase">1. Connessione Uplink</h2>
         
         <div class="flex flex-col md:flex-row gap-4 items-end">
@@ -119,7 +119,7 @@
         </div>
     </div>
 
-    <div id="actionSection" class="hidden bg-scifi-panel border border-scifi-border rounded-lg p-5 mb-6 shadow-lg backdrop-blur-sm relative overflow-hidden">
+    <div id="actionSection" class="hidden bg-scifi-panel border border-scifi-border rounded-lg p-5 mb-6 shadow-lg backdrop-blur-sm relative overflow-hidden z-10">
         <div class="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-scifi-accent/40 rounded-tr-lg pointer-events-none"></div>
 
         <h2 class="text-xl font-semibold text-scifi-text mb-4 border-b border-scifi-border pb-2 uppercase">2. Parametri Filtro</h2>
@@ -167,21 +167,21 @@
         <div id="activeHighlights" class="flex flex-wrap gap-3 mt-4"></div>
     </div>
 
-    <div class="bg-scifi-panel border border-scifi-accent/20 rounded-lg p-2 md:p-5 mb-6 shadow-lg h-[65vh] min-h-[400px] w-full relative">
+    <div class="bg-scifi-panel border border-scifi-accent/20 rounded-lg p-2 md:p-5 mb-6 shadow-lg h-[65vh] min-h-[400px] w-full relative z-10">
         <canvas id="universeMap"></canvas>
     </div>
 
-    <div id="allianceSummaryPanel" class="hidden bg-scifi-panel border border-scifi-border rounded-lg p-5 mb-6 shadow-lg overflow-x-auto">
+    <div id="allianceSummaryPanel" class="hidden bg-scifi-panel border border-scifi-border rounded-lg p-5 mb-6 shadow-lg overflow-x-auto z-10 relative">
         <h2 class="text-xl font-semibold text-scifi-text mb-2 border-b border-scifi-border pb-2 uppercase">Dettaglio Fazioni Evidenziate</h2>
         <div id="allianceTableContainer" class="min-w-[800px] mt-4"></div>
     </div>
 
-    <div id="summaryPanel" class="hidden bg-scifi-panel border border-scifi-border rounded-lg p-5 mb-6 shadow-lg overflow-x-auto">
+    <div id="summaryPanel" class="hidden bg-scifi-panel border border-scifi-border rounded-lg p-5 mb-6 shadow-lg overflow-x-auto z-10 relative">
         <h2 class="text-xl font-semibold text-scifi-text mb-2 border-b border-scifi-border pb-2 uppercase">Rilevamento Densità Settori</h2>
         <div id="tableContainer" class="min-w-[600px] mt-4"></div>
     </div>
 
-    <div id="freeSlotsPanel" class="hidden bg-scifi-panel border border-scifi-success/50 rounded-lg p-5 mb-6 shadow-neon-green/20 overflow-x-auto relative">
+    <div id="freeSlotsPanel" class="hidden bg-scifi-panel border border-scifi-success/50 rounded-lg p-5 mb-6 shadow-neon-green/20 overflow-x-auto relative z-10">
         <div class="absolute top-0 right-0 w-16 h-16 border-t-2 border-r-2 border-scifi-success/40 rounded-tr-lg pointer-events-none"></div>
         <h2 class="text-xl font-semibold text-scifi-success mb-2 border-b border-scifi-border pb-2 uppercase">Sistemi Tattici Rilevati (Slot 8 e 15)</h2>
         <div id="freeSlotsContainer" class="min-w-[600px] mt-4"></div>
@@ -225,7 +225,6 @@
         const loadingStatusContainer = document.getElementById('loadingStatusContainer');
         const loadingMsg = document.getElementById('loadingMsg');
         const actionSection = document.getElementById('actionSection');
-        const dividerLine = document.getElementById('dividerLine');
         const allianceList = document.getElementById('allianceList');
         const toggleBackground = document.getElementById('toggleBackground');
         const toggleFreeSlots = document.getElementById('toggleFreeSlots');
@@ -311,7 +310,7 @@
             try {
                 setStatus("Connessione ai database Gameforge...");
                 
-                // Fetch parallelo come TESTO puro (molto più veloce del parse XML diretto in Promise)
+                // Fetch parallelo come TESTO puro (molto più veloce)
                 const [universeTxt, playersTxt, alliancesTxt, serverDataTxt] = await Promise.all([
                     fetchText(`${universeUrl}/api/universe.xml`),
                     fetchText(`${universeUrl}/api/players.xml`),
@@ -321,7 +320,7 @@
 
                 setStatus("Elaborazione decrittazione dati...");
 
-                // Usa setTimeout per permettere al browser di aggiornare l'UI col messaggio "Elaborazione..." prima di bloccarsi per i calcoli
+                // Uso setTimeout per permettere al browser di aggiornare l'UI prima del calcolo massivo
                 await new Promise(resolve => setTimeout(resolve, 50)); 
 
                 // Rilevamento dinamico Galassie (RegEx)
@@ -334,9 +333,9 @@
 
                 setStatus("Generazione Mappa Olografica...");
                 
-                dividerLine.style.display = 'block';
+                // ATTIVAZIONE PANNELLI (usando l'API classList nativa di Tailwind)
                 actionSection.classList.remove('hidden');
-                summaryPanel.style.display = 'block';
+                summaryPanel.classList.remove('hidden');
                 
                 activeLayers = []; 
                 colorIndex = 0;
@@ -346,7 +345,7 @@
                 generateDensitySummary(); 
                 
                 if (toggleFreeSlots.checked) {
-                    freeSlotsPanel.style.display = 'block';
+                    freeSlotsPanel.classList.remove('hidden');
                     generateFreeSlotsSummary();
                 }
 
@@ -371,8 +370,6 @@
         });
 
         // --- MOTORE DI PARSING ULTRA-VELOCE (REGEX) ---
-        // Evita la creazione di DOM Tree che fa crashare i dispositivi mobili
-
         function parseAlliancesFast(text) {
             alliancesMap = {};
             allianceList.innerHTML = ''; 
@@ -527,10 +524,10 @@
 
         toggleFreeSlots.addEventListener('change', (e) => {
             if (e.target.checked && allPlanetsList.length > 0) {
-                freeSlotsPanel.style.display = 'block';
+                freeSlotsPanel.classList.remove('hidden');
                 generateFreeSlotsSummary();
             } else {
-                freeSlotsPanel.style.display = 'none';
+                freeSlotsPanel.classList.add('hidden');
             }
         });
 
@@ -585,11 +582,11 @@
             const allianceLayers = activeLayers.filter(layer => layer.type === 'alliance');
             
             if (allianceLayers.length === 0) {
-                allianceSummaryPanel.style.display = 'none';
+                allianceSummaryPanel.classList.add('hidden');
                 return;
             }
             
-            allianceSummaryPanel.style.display = 'block';
+            allianceSummaryPanel.classList.remove('hidden');
 
             const combinedGrid = {};
             for (let g = 1; g <= maxGalaxies; g++) combinedGrid[g] = [[], [], [], [], []];
@@ -738,9 +735,9 @@
             
             activeLayers.forEach((layer, index) => {
                 const badge = document.createElement('div');
-                badge.className = 'badge text-black'; // Testo nero per contrasto su colori fluo
+                badge.className = 'badge text-black'; 
                 badge.style.backgroundColor = layer.dataset.backgroundColor;
-                badge.style.boxShadow = `0 0 8px ${layer.dataset.backgroundColor}`; // Effetto glow
+                badge.style.boxShadow = `0 0 8px ${layer.dataset.backgroundColor}`; 
                 
                 badge.innerHTML = `
                     <span>${layer.label}</span>
@@ -749,7 +746,7 @@
                 container.appendChild(badge);
             });
 
-            // Mostra o nascondi bottoni Export
+            // Mostra o nascondi bottoni Export usando Tailwind
             if(activeLayers.length > 0) {
                 exportControls.classList.remove('hidden');
             } else {
