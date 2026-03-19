@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OGame Universe Tracker — Token</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:       #111110;
+            --surface:  #1a1a18;
+            --surface2: #222220;
+            --border:   #2e2e2b;
+            --border2:  #3a3a36;
+            --text:     #f0ede8;
+            --text2:    #9e9a94;
+            --text3:    #5a5752;
+            --amber:    #e8a020;
+            --amber-bg: rgba(232,160,32,0.08);
+            --amber-dim:#7a5010;
+            --green:    #4caf78;
+            --green-bg: rgba(76,175,120,0.08);
+            --red:      #e05555;
+            --red-bg:   rgba(224,85,85,0.08);
+            --white:    #ffffff;
+            --radius:   6px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .app {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 24px 60px;
+        }
+
+        /* ── HEADER ── */
+        header {
+            padding: 40px 0 28px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+        .logo span { color: var(--amber); }
+        .logo-tagline {
+            font-size: 0.75rem;
+            font-family: 'DM Mono', monospace;
+            color: var(--text3);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 7px;
+        }
+        .back-link {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--text3);
+            text-decoration: none;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color .18s;
+        }
+        .back-link:hover { color: var(--amber); }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 20px;
+        }
+        .card-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--text3);
+            margin-bottom: 6px;
+        }
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 10px;
+        }
+        .card-desc {
+            font-size: 0.88rem;
+            color: var(--text2);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+        .field label { font-size: 0.82rem; font-weight: 500; color: var(--text2); }
+        input[type="text"], input[type="password"] {
+            padding: 11px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color .18s;
+            width: 100%;
+        }
+        input:focus { border-color: var(--amber); }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 11px 22px; border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600;
+            cursor: pointer; transition: all .18s; border: 1px solid transparent; white-space: nowrap; width: 100%;
+        }
+        .btn-primary { background: var(--amber); color: #111; border-color: var(--amber); }
+        .btn-primary:hover { background: #f0b030; box-shadow: 0 4px 16px rgba(232,160,32,.25); }
+        .btn-primary:active { transform: scale(.98); }
+        .btn-primary:disabled { background: var(--border2); color: var(--text3); border-color: transparent; cursor: not-allowed; box-shadow: none; }
+        .btn-ghost { background: transparent; color: var(--text2); border-color: var(--border2); }
+        .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+        .btn-green { background: var(--green); color: #0a1a10; border-color: var(--green); }
+        .btn-green:hover { background: #5cc98a; box-shadow: 0 4px 16px rgba(76,175,120,.25); }
+
+        /* ── DIVIDER ── */
+        .divider {
+            display: flex; align-items: center; gap: 14px;
+            margin: 28px 0; color: var(--text3);
+            font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* ── RESULT BOX ── */
+        .result-box {
+            display: none;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 20px;
+            animation: fadein .25s ease;
+        }
+        @keyframes fadein { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+        .result-box.success { background: var(--green-bg); border: 1px solid rgba(76,175,120,.25); }
+        .result-box.error   { background: var(--red-bg);   border: 1px solid rgba(224,85,85,.25); }
+
+        .result-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .result-box.success .result-label { color: var(--green); }
+        .result-box.error   .result-label { color: var(--red); }
+
+        .token-display {
+            font-family: 'DM Mono', monospace;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            color: var(--white);
+            background: var(--bg);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            word-break: break-all;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: border-color .18s;
+            user-select: all;
+        }
+        .token-display:hover { border-color: var(--amber); }
+
+        .result-meta {
+            font-size: 0.8rem;
+            color: var(--text2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .result-meta span { font-family: 'DM Mono', monospace; font-size: 0.75rem; }
+        .expiry-badge {
+            background: rgba(232,160,32,.12);
+            border: 1px solid rgba(232,160,32,.25);
+            color: var(--amber);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+        }
+
+        .copy-hint {
+            font-size: 0.75rem;
+            color: var(--text3);
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .copy-hint.copied { color: var(--green); }
+
+        .error-text { font-size: 0.88rem; color: var(--red); }
+
+        /* ── INFO BOX ── */
+        .info-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            font-size: 0.83rem;
+            color: var(--text2);
+            line-height: 1.7;
+        }
+        .info-box strong { color: var(--text); }
+        .info-box ul { padding-left: 18px; margin-top: 6px; }
+        .info-box li { margin-bottom: 3px; }
+
+        /* ── TABS ── */
+        .tabs {
+            display: flex;
+            gap: 2px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+        .tab {
+            flex: 1; padding: 8px 14px; border-radius: 4px;
+            font-size: 0.85rem; font-weight: 500; cursor: pointer;
+            text-align: center; transition: all .18s; color: var(--text2);
+            border: none; background: transparent; font-family: 'DM Sans', sans-serif;
+        }
+        .tab.active { background: var(--surface2); color: var(--text); }
+        .tab:hover:not(.active) { color: var(--text); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <header>
+        <div>
+            <div class="logo">OGame <span>Universe</span> Tracker</div>
+            <div class="logo-tagline">Gestione Token Premium</div>
+        </div>
+        <a href="index.html" class="back-link">← Torna alla mappa</a>
+    </header>
+
+    <!-- TRIAL CARD -->
+    <div class="card">
+        <div class="card-label">Accesso gratuito</div>
+        <div class="card-title">Token di prova</div>
+        <div class="card-desc">
+            Prova la funzione <strong>Slot 8 liberi</strong> gratuitamente per 30 giorni. 
+            Nessuna registrazione richiesta — genera il token qui e incollalo nella mappa.
+        </div>
+        <button class="btn btn-green" id="trialBtn" onclick="generateTrialToken()">
+            ⭐ Genera token di prova — 30 giorni
+        </button>
+        <div class="result-box" id="trialResult"></div>
+    </div>
+
+    <div class="divider">oppure</div>
+
+    <!-- ADMIN CARD -->
+    <div class="card">
+        <div class="card-label">Accesso admin</div>
+        <div class="card-title">Genera token personalizzato</div>
+        <div class="card-desc">
+            Inserisci la password admin per generare un token con durata personalizzata.
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('admin', this)">Con password</button>
+            <button class="tab" onclick="switchTab('custom', this)">Token custom</button>
+        </div>
+
+        <!-- Admin tab -->
+        <div class="tab-panel active" id="tab-admin">
+            <div class="field">
+                <label for="adminPassword">Password admin</label>
+                <input type="password" id="adminPassword" placeholder="••••••••" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="adminDays">Durata (giorni)</label>
+                <input type="text" id="adminDays" value="30" placeholder="30">
+            </div>
+            <button class="btn btn-primary" onclick="generateAdminToken()">Genera token</button>
+            <div class="result-box" id="adminResult"></div>
+        </div>
+
+        <!-- Custom tab: generate token from any string -->
+        <div class="tab-panel" id="tab-custom">
+            <div class="field">
+                <label for="adminPassword2">Password admin</label>
+                <input type="password" id="adminPassword2" placeholder="••••••••" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="customString">Stringa token custom</label>
+                <input type="text" id="customString" placeholder="Es. DONOR-MARIO-2024" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="field">
+                <label for="customDays">Durata (giorni)</label>
+                <input type="text" id="customDays" value="30" placeholder="30">
+            </div>
+            <button class="btn btn-primary" onclick="generateCustomToken()">Genera token custom</button>
+            <div class="result-box" id="customResult"></div>
+        </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="info-box">
+        <strong>Come usare il token</strong>
+        <ul>
+            <li>Copia il token generato</li>
+            <li>Vai alla mappa e scarica i dati di un universo</li>
+            <li>Clicca sul chip <strong>🔒 Slot 8 liberi</strong></li>
+            <li>Incolla il token nel campo e clicca <em>Sblocca</em></li>
+        </ul>
+    </div>
+
+</div>
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────────
+// IMPORTANTE: cambia questi valori prima del deploy
+// ADMIN_PASSWORD_HASH: SHA-256 della tua password admin
+// Per generarlo: crypto.subtle.digest('SHA-256', new TextEncoder().encode('TUA_PASSWORD'))
+//   .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+const ADMIN_PASSWORD_HASH = '4a4c78ec2c0bc754ba769820f1584979031cf4812b9aea92139a67169ce45bb0';
+
+// TOKEN_SECRET: stringa segreta usata per firmare i token (cambiala e tienila privata)
+// Stessa logica: metti qui la stringa in chiaro — è sul client, ma rende il token
+// non replicabile senza conoscere questa stringa.
+const TOKEN_SECRET = 'VITO-BOCCY';
+
+// ─── UTILITIES ─────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+async function sha256hex(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function randomHex(bytes = 8) {
+    const arr = new Uint8Array(bytes);
+    crypto.getRandomValues(arr);
+    return [...arr].map(x => x.toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+
+// Token format: RANDOM_ID-EXPIRY_TIMESTAMP
+// The valid token hash stored in index.html is SHA256(TOKEN_SECRET + token_string)
+// So: token = "XXXX-1234567890", hash = sha256(TOKEN_SECRET + token)
+// index.html verifies: sha256(input) === stored_hash  ← but stored hash is sha256(SECRET+token)
+// 
+// SIMPLER approach: the token IS the secret itself, just with expiry embedded.
+// Token string = RAND_ID + "-" + base36(expiryTimestamp)
+// index.html hashes the token and compares to VALID_TOKEN_HASH.
+// So each generated token needs its hash to match what's in index.html.
+// 
+// Better: token = sha256(SECRET + expiry_ts + rand)[:16] + "-" + expiry_base36
+// index.html receives full token, splits, checks expiry, then verifies signature.
+// But index.html only has one stored hash → single token model.
+//
+// ACTUAL DESIGN for multi-token support:
+// - Token = RAND-EXPIRY_TS (plain string)  
+// - index.html stores TOKEN_SECRET and verifies: sha256(TOKEN_SECRET + token) matches
+//   a known prefix pattern, OR stores a list in localStorage of valid hashes.
+//
+// SIMPLEST practical approach used here:
+// Token = BASE_TOKEN-EXPIRY_TS where BASE_TOKEN = sha256(SECRET+expiry_ts+rand)[0:12]
+// index.html verifies the token by checking:
+//   1. Split at last '-' → [sig, expiry_ts]
+//   2. expiry_ts > now  (not expired)
+//   3. sha256(TOKEN_SECRET + expiry_ts + sig) matches a known prefix... 
+//      too complex for client-only.
+//
+// FINAL APPROACH (client-only, practical):
+// The token IS the secret token stored in index.html VALID_TOKEN_HASH.
+// For multi-user: generate N tokens, store N hashes in index.html array.
+// This page shows the token to copy + the hash to add to index.html.
+
+async function buildToken(days, customStr = null) {
+    const expiry    = Date.now() + days * 86400000;
+    const rand      = customStr || randomHex(6);
+    const tokenStr  = `${rand}-${expiry}`;
+    const tokenHash = await sha256hex(TOKEN_SECRET + tokenStr);
+    return { tokenStr, tokenHash, expiry, days };
+}
+
+function showResult(containerId, tokenStr, tokenHash, expiry, days, extraNote = '') {
+    const container = $(containerId);
+    const expiryDate = formatDate(new Date(expiry));
+
+    container.className = 'result-box success';
+    container.style.display = 'block';
+    container.innerHTML = `
+        <div class="result-label">✓ Token generato</div>
+        <div class="token-display" id="${containerId}_token" title="Clicca per copiare" onclick="copyToken('${containerId}_token', '${containerId}_hint')">${tokenStr}</div>
+        <div class="result-meta">
+            <span>Valido fino al</span>
+            <span class="expiry-badge">⏳ ${expiryDate} (${days}gg)</span>
+        </div>
+        ${extraNote ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:0.78rem;color:var(--text3);font-family:'DM Mono',monospace;">${extraNote}</div>` : ''}
+        <div class="copy-hint" id="${containerId}_hint">Clicca il token per copiarlo</div>
+    `;
+}
+
+function showError(containerId, message) {
+    const container = $(containerId);
+    container.className = 'result-box error';
+    container.style.display = 'block';
+    container.innerHTML = `<div class="result-label">✗ Errore</div><div class="error-text">${message}</div>`;
+}
+
+async function copyToken(tokenId, hintId) {
+    const text = $(tokenId).textContent;
+    try {
+        await navigator.clipboard.writeText(text);
+        const hint = $(hintId);
+        hint.textContent = '✓ Copiato negli appunti!';
+        hint.className = 'copy-hint copied';
+        setTimeout(() => {
+            hint.textContent = 'Clicca il token per copiarlo';
+            hint.className = 'copy-hint';
+        }, 2500);
+    } catch {
+        // fallback: select
+        const el = $(tokenId);
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+}
+
+// ─── TRIAL TOKEN ───────────────────────────────────────────────────────────────
+async function generateTrialToken() {
+    const btn = $('trialBtn');
+    btn.disabled = true;
+    btn.textContent = 'Generazione in corso…';
+
+    const { tokenStr, tokenHash, expiry } = await buildToken(30);
+    showResult(
+        'trialResult',
+        tokenStr,
+        tokenHash,
+        expiry,
+        30,
+        `Hash da aggiungere a index.html:<br><span style="color:var(--amber);word-break:break-all">${tokenHash}</span>`
+    );
+
+    btn.disabled = false;
+    btn.textContent = '⭐ Genera un altro token di prova';
+}
+
+// ─── ADMIN TOKEN ───────────────────────────────────────────────────────────────
+async function generateAdminToken() {
+    const pwd  = $('adminPassword').value;
+    const days = parseInt($('adminDays').value, 10) || 30;
+
+    if (!pwd) { showError('adminResult', 'Inserisci la password admin.'); return; }
+
+    const pwdHash = await sha256hex(pwd);
+    if (pwdHash !== ADMIN_PASSWORD_HASH) {
+        showError('adminResult', 'Password non corretta.');
+        return;
+    }
+
+    const { tokenStr, tokenHash, expiry } = await buildToken(days);
+    showResult(
+        'adminResult',
+        tokenStr,
+        tokenHash,
+        expiry,
+        days,
+        `Hash da aggiungere a index.html:<br><span style="color:var(--amber);word-break:break-all">${tokenHash}</span>`
+    );
+}
+
+// ─── CUSTOM TOKEN ──────────────────────────────────────────────────────────────
+async function generateCustomToken() {
+    const pwd    = $('adminPassword2').value;
+    const custom = $('customString').value.trim();
+    const days   = parseInt($('customDays').value, 10) || 30;
+
+    if (!pwd)    { showError('customResult', 'Inserisci la password admin.'); return; }
+    if (!custom) { showError('customResult', 'Inserisci una stringa token.'); return; }
+
+    const pwdHash = await sha256hex(pwd);
+    if (pwdHash !== ADMIN_PASSWORD_HASH) {
+        showError('customResult', 'Password non corretta.');
+        return;
+    }
+
+    const { tokenStr, tokenHash, expiry } = await buildToken(days, custom.replace(/[^a-zA-Z0-9_-]/g, ''));
+    showResult(
+        'customResult',
+        tokenStr,
+        tokenHash,
+        expiry,
+        days,
+        `Hash da aggiungere a index.html:<br><span style="color:var(--amber);word-break:break-all">${tokenHash}</span>`
+    );
+}
+
+// ─── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    $(`tab-${name}`).classList.add('active');
+    btn.classList.add('active');
+}
+
+// Enter key on password fields
+['adminPassword','adminPassword2'].forEach(id => {
+    $(id) && $(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            id === 'adminPassword' ? generateAdminToken() : generateCustomToken();
+        }
+    });
+});
+</script>
+</body>
+</html>
