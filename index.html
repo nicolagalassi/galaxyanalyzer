@@ -814,8 +814,9 @@ $('loadBtn').addEventListener('click', async () => {
         renderHighlights();
         renderAllianceSummaries();
 
-        // Premium slot panel: restore if still unlocked
-        if (isPremiumActive() && slotPanelVisible) {
+        // Premium slot panel: auto-show if premium active
+        if (isPremiumActive()) {
+            slotPanelVisible = true;
             $('freeSlotsPanel').style.display = 'block';
             generateFreeSlots();
         }
@@ -1082,27 +1083,21 @@ function getPremiumExpiryLabel() {
 function updateSlotChip() {
     const chip = $('slotChip'), lock = $('premiumLock');
     if (isPremiumActive()) {
-        chip.classList.remove('locked');
-        chip.classList.toggle('active-slot', slotPanelVisible);
-        chip.classList.toggle('unlocked', !slotPanelVisible);
+        chip.classList.remove('locked', 'unlocked');
+        chip.classList.add('active-slot');
         lock.textContent = '⭐';
+        chip.style.cursor = 'default';
     } else {
-        chip.className = chip.className.replace(/unlocked|active-slot/g,'').trim();
-        chip.classList.add('chip','chip-premium','locked');
+        chip.classList.remove('active-slot', 'unlocked');
+        chip.classList.add('locked');
         lock.textContent = '🔒';
+        chip.style.cursor = 'pointer';
     }
 }
 
 function handleSlotChipClick() {
     if (!isPremiumActive()) { openPremiumModal(); return; }
-    slotPanelVisible = !slotPanelVisible;
-    if (slotPanelVisible && allPlanetsList.length) {
-        $('freeSlotsPanel').style.display = 'block';
-        generateFreeSlots();
-    } else {
-        $('freeSlotsPanel').style.display = 'none';
-    }
-    updateSlotChip();
+    // Already unlocked — clicking does nothing (panel is always visible after data load)
 }
 
 function openPremiumModal() {
@@ -1130,6 +1125,8 @@ async function submitToken() {
         slotPanelVisible = true;
         if (allPlanetsList.length) { $('freeSlotsPanel').style.display='block'; generateFreeSlots(); }
         updateSlotChip();
+        // Scroll to slots panel if data is loaded
+        if (allPlanetsList.length) $('freeSlotsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
         alert('\u2705 Accesso premium attivato fino al ' + getPremiumExpiryLabel());
     } else {
         let msg = 'Token non valido.';
