@@ -1,11 +1,12 @@
 {
   "name": "ogame-universe-tracker-netlify",
-  "version": "1.0.0",
-  "description": "Tool per la mappa di densit‡ degli universi di OGame",
+  "version": "2.0.0",
+  "description": "Tool per la mappa di densit√† degli universi di OGame",
   "scripts": {
     "build": "echo 'Nessuna build necessaria per frontend statico'"
   },
   "dependencies": {
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "@netlify/blobs": "^8.1.0"
   }
 }

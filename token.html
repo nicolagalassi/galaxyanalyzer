@@ -19,15 +19,14 @@
             --amber:    #e8a020;
             --amber-bg: rgba(232,160,32,0.08);
             --green:    #4caf78;
-            --green-bg: rgba(76,175,120,0.08);
+            --green-bg: rgba(76,175,120,0.10);
             --red:      #e05555;
             --red-bg:   rgba(224,85,85,0.08);
+            --kofi:     #ff5e5b;
             --white:    #ffffff;
             --radius:   6px;
         }
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg);
@@ -36,104 +35,63 @@
             font-size: 15px;
             line-height: 1.6;
         }
-
-        .app {
-            max-width: 620px;
-            margin: 0 auto;
-            padding: 0 24px 60px;
-        }
+        .app { max-width: 600px; margin: 0 auto; padding: 0 24px 60px; }
 
         /* ── HEADER ── */
         header {
             padding: 40px 0 28px;
             border-bottom: 1px solid var(--border);
             margin-bottom: 40px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
+            display: flex; align-items: flex-end; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px;
         }
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(1.4rem, 3vw, 2rem);
-            font-weight: 700;
-            color: var(--white);
-            letter-spacing: -0.5px;
-            line-height: 1;
-        }
+        .logo { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem,3vw,2rem); font-weight: 700; color: var(--white); letter-spacing: -0.5px; line-height: 1; }
         .logo span { color: var(--amber); }
-        .logo-tagline {
-            font-size: 0.75rem;
-            font-family: 'DM Mono', monospace;
-            color: var(--text3);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-top: 7px;
-        }
+        .logo-tagline { font-size: 0.75rem; font-family: 'DM Mono', monospace; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-top: 7px; }
         .back-link {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            letter-spacing: 1.5px;
-            color: var(--text3);
-            text-decoration: none;
-            text-transform: uppercase;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: color .18s;
-            padding: 8px 14px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 1.5px;
+            color: var(--text3); text-decoration: none; text-transform: uppercase;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius);
+            transition: color .18s, border-color .18s;
         }
         .back-link:hover { color: var(--amber); border-color: var(--amber); }
 
         /* ── CARD ── */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 32px;
-            margin-bottom: 16px;
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 16px; }
+        .card-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+        .card-title { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+        .card-desc { font-size: 0.88rem; color: var(--text2); line-height: 1.7; margin-bottom: 24px; }
+
+        /* ── STEPS ── */
+        .steps { display: flex; flex-direction: column; gap: 0; margin-bottom: 28px; }
+        .step {
+            display: flex; gap: 16px; align-items: flex-start;
+            padding: 14px 0; border-bottom: 1px solid var(--border);
         }
-        .card-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.68rem;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--text3);
-            margin-bottom: 6px;
+        .step:last-child { border-bottom: none; }
+        .step-num {
+            font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--amber);
+            background: var(--amber-bg); border: 1px solid rgba(232,160,32,.2);
+            border-radius: 50%; width: 24px; height: 24px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
         }
-        .card-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--white);
-            margin-bottom: 8px;
-        }
-        .card-desc {
-            font-size: 0.88rem;
-            color: var(--text2);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
+        .step-num.done { background: var(--green-bg); border-color: rgba(76,175,120,.3); color: var(--green); }
+        .step-content { flex: 1; }
+        .step-title { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .step-sub { font-size: 0.82rem; color: var(--text2); }
 
         /* ── FORM ── */
-        .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+        .field { display: flex; flex-direction: column; gap: 7px; }
         .field label { font-size: 0.82rem; font-weight: 500; color: var(--text2); }
-        input[type="text"], input[type="password"], input[type="number"] {
-            padding: 11px 14px;
-            background: var(--bg);
-            border: 1px solid var(--border2);
-            border-radius: var(--radius);
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color .18s;
-            width: 100%;
+        input[type="email"], input[type="text"], input[type="password"], input[type="number"] {
+            padding: 11px 14px; background: var(--bg); border: 1px solid var(--border2);
+            border-radius: var(--radius); color: var(--text);
+            font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+            outline: none; transition: border-color .18s; width: 100%;
         }
         input:focus { border-color: var(--amber); }
+        input:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* ── BUTTONS ── */
         .btn {
@@ -141,108 +99,90 @@
             gap: 8px; padding: 11px 22px; border-radius: var(--radius);
             font-family: 'DM Sans', sans-serif; font-size: 0.92rem; font-weight: 600;
             cursor: pointer; transition: all .18s; border: 1px solid transparent;
-            white-space: nowrap; width: 100%;
+            white-space: nowrap; width: 100%; text-decoration: none;
         }
         .btn-primary { background: var(--amber); color: #111; border-color: var(--amber); }
         .btn-primary:hover { background: #f0b030; box-shadow: 0 4px 16px rgba(232,160,32,.25); }
-        .btn-primary:active { transform: scale(.98); }
-        .btn-primary:disabled { background: var(--border2); color: var(--text3); border-color: transparent; cursor: not-allowed; }
+        .btn-primary:disabled { background: var(--border2); color: var(--text3); border-color: transparent; cursor: not-allowed; box-shadow: none; }
         .btn-ghost { background: transparent; color: var(--text2); border-color: var(--border2); }
         .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
-        .btn-green { background: var(--green); color: #0a1a10; border-color: var(--green); font-size: 0.95rem; }
-        .btn-green:hover { background: #5cc98a; box-shadow: 0 4px 16px rgba(76,175,120,.25); }
-        .btn-green:disabled { background: var(--border2); color: var(--text3); border-color: transparent; cursor: not-allowed; }
-
-        /* ── DIVIDER ── */
-        .divider {
-            display: flex; align-items: center; gap: 14px; margin: 24px 0;
-            color: var(--text3); font-family: 'DM Mono', monospace;
-            font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase;
+        .btn-kofi {
+            background: var(--kofi); color: #fff; border-color: var(--kofi);
+            font-size: 1rem;
         }
-        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .btn-kofi:hover { background: #ff4a47; box-shadow: 0 4px 16px rgba(255,94,91,.3); }
+        .btn-kofi:disabled { background: var(--border2); color: var(--text3); border-color: transparent; cursor: not-allowed; box-shadow: none; }
 
-        /* ── RESULT ── */
-        .result-box {
-            display: none;
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-top: 20px;
-            animation: fadein .25s ease;
+        /* ── WAITING STATE ── */
+        #waitingState { display: none; }
+        .waiting-box {
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 20px;
+            display: flex; flex-direction: column; gap: 14px; align-items: center;
+            text-align: center;
         }
-        @keyframes fadein { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-        .result-box.success { background: var(--green-bg); border: 1px solid rgba(76,175,120,.25); }
-        .result-box.error   { background: var(--red-bg);   border: 1px solid rgba(224,85,85,.25); }
-
-        .result-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;
+        .waiting-spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border2);
+            border-top-color: var(--amber);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
         }
-        .result-box.success .result-label { color: var(--green); }
-        .result-box.error   .result-label { color: var(--red); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .waiting-text { font-size: 0.88rem; color: var(--text2); }
+        .waiting-email { font-family: 'DM Mono', monospace; font-size: 0.82rem; color: var(--amber); }
+        .waiting-hint { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 1px; color: var(--text3); text-transform: uppercase; }
 
+        /* ── TOKEN RESULT ── */
+        #tokenResult { display: none; }
+        .token-success {
+            background: var(--green-bg); border: 1px solid rgba(76,175,120,.25);
+            border-radius: var(--radius); padding: 24px;
+            display: flex; flex-direction: column; gap: 14px;
+            animation: fadein .3s ease;
+        }
+        @keyframes fadein { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        .success-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--green); }
+        .success-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--white); }
         .token-display {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.95rem; letter-spacing: 1.5px; color: var(--white);
-            background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius);
-            padding: 14px 16px; word-break: break-all; margin-bottom: 12px;
+            font-family: 'DM Mono', monospace; font-size: 0.95rem; letter-spacing: 1.5px;
+            color: var(--white); background: var(--bg); border: 1px solid var(--border2);
+            border-radius: var(--radius); padding: 14px 16px; word-break: break-all;
             cursor: pointer; transition: border-color .18s; user-select: all;
         }
         .token-display:hover { border-color: var(--amber); }
-
-        .result-meta {
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
-            font-size: 0.8rem; color: var(--text2);
-        }
+        .token-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
         .expiry-badge {
             background: rgba(232,160,32,.12); border: 1px solid rgba(232,160,32,.2);
             color: var(--amber); padding: 3px 10px; border-radius: 10px;
             font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 1px;
         }
-        .copy-hint {
-            font-size: 0.72rem; color: var(--text3);
-            font-family: 'DM Mono', monospace; letter-spacing: 1px; text-align: center;
-            transition: color .2s;
-        }
+        .copy-hint { font-size: 0.72rem; color: var(--text3); font-family: 'DM Mono', monospace; letter-spacing: 1px; text-align: center; transition: color .2s; }
         .copy-hint.copied { color: var(--green); }
-        .error-text { font-size: 0.88rem; color: var(--red); }
+        .email-note { font-size: 0.82rem; color: var(--text2); }
 
-        /* ── ACCORDION (admin) ── */
+        /* ── DIVIDER ── */
+        .divider { display: flex; align-items: center; gap: 14px; margin: 24px 0; color: var(--text3); font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* ── ADMIN ACCORDION ── */
         .accordion-trigger {
-            width: 100%; background: none; border: 1px solid var(--border2);
-            border-radius: var(--radius); padding: 12px 16px;
-            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; background: none; border: 1px solid var(--border2); border-radius: var(--radius);
+            padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; color: var(--text2); font-family: 'DM Sans', sans-serif;
             font-size: 0.88rem; font-weight: 500; transition: all .18s;
         }
         .accordion-trigger:hover { border-color: var(--text3); color: var(--text); }
         .accordion-trigger .arrow { font-size: 0.75rem; transition: transform .2s; }
-        .accordion-trigger.open { border-color: var(--border2); color: var(--text); }
+        .accordion-trigger.open { color: var(--text); }
         .accordion-trigger.open .arrow { transform: rotate(180deg); }
-        .accordion-body {
-            display: none; padding: 20px 0 0;
-        }
+        .accordion-body { display: none; padding: 20px 0 0; }
         .accordion-body.open { display: block; }
 
         /* ── INFO ── */
-        .info-box {
-            background: var(--surface2); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 18px 20px;
-            font-size: 0.83rem; color: var(--text2); line-height: 1.8; margin-top: 16px;
-        }
-        .info-box strong { color: var(--text); }
-        .info-step {
-            display: flex; gap: 12px; align-items: flex-start; padding: 6px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .info-step:last-child { border-bottom: none; }
-        .step-num {
-            font-family: 'DM Mono', monospace; font-size: 0.72rem;
-            color: var(--amber); background: var(--amber-bg);
-            border: 1px solid rgba(232,160,32,.2); border-radius: 50%;
-            width: 22px; height: 22px; display: flex; align-items: center;
-            justify-content: center; flex-shrink: 0; margin-top: 2px;
-        }
+        .info-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; font-size: 0.83rem; color: var(--text2); line-height: 1.8; margin-top: 16px; }
+
+        @media (max-width: 480px) { .card { padding: 20px; } }
     </style>
 </head>
 <body>
@@ -256,18 +196,79 @@
         <a href="index.html" class="back-link">← Mappa</a>
     </header>
 
-    <!-- TRIAL -->
+    <!-- DONATION FLOW -->
     <div class="card">
-        <div class="card-label">Accesso gratuito</div>
-        <div class="card-title">Token di prova</div>
+        <div class="card-label">Supporta il progetto</div>
+        <div class="card-title">Ottieni il token premium</div>
         <div class="card-desc">
-            Prova la funzione <strong style="color:var(--text)">Slot 8 liberi</strong> gratuitamente per 30 giorni.
-            Nessuna registrazione richiesta.
+            Sblocca la funzione <strong style="color:var(--text)">Slot 8 liberi</strong> per 30 giorni con una piccola donazione.
+            Il token verrà inviato automaticamente alla tua email.
         </div>
-        <button class="btn btn-green" id="trialBtn" onclick="generateTrialToken()">
-            ⭐ &nbsp;Genera token di prova — 30 giorni gratuiti
-        </button>
-        <div class="result-box" id="trialResult"></div>
+
+        <!-- Steps visual -->
+        <div class="steps">
+            <div class="step">
+                <span class="step-num" id="step1Num">1</span>
+                <div class="step-content">
+                    <div class="step-title">Inserisci la tua email</div>
+                    <div class="step-sub">Riceverai il token qui dopo la donazione</div>
+                </div>
+            </div>
+            <div class="step">
+                <span class="step-num" id="step2Num">2</span>
+                <div class="step-content">
+                    <div class="step-title">Effettua la donazione su Ko-fi</div>
+                    <div class="step-sub">Qualsiasi importo — il token è generato automaticamente</div>
+                </div>
+            </div>
+            <div class="step">
+                <span class="step-num" id="step3Num">3</span>
+                <div class="step-content">
+                    <div class="step-title">Ricevi il token via email</div>
+                    <div class="step-sub">Arriverà entro pochi secondi, controllare spam se necessario</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email input -->
+        <div id="emailSection">
+            <div class="field" style="margin-bottom:16px">
+                <label for="donorEmail">La tua email</label>
+                <input type="email" id="donorEmail" placeholder="mario@esempio.it" autocomplete="email">
+            </div>
+            <button class="btn btn-kofi" id="kofiBtn" onclick="startDonation()">
+                ☕ &nbsp;Dona su Ko-fi e ottieni il token
+            </button>
+        </div>
+
+        <!-- Waiting state -->
+        <div id="waitingState">
+            <div class="waiting-box">
+                <div class="waiting-spinner"></div>
+                <div>
+                    <div class="waiting-text">In attesa di conferma pagamento…</div>
+                    <div class="waiting-email" id="waitingEmailDisplay"></div>
+                </div>
+                <div class="waiting-hint" id="waitingHint">Completa la donazione su Ko-fi per ricevere il token</div>
+                <button class="btn btn-ghost" style="width:auto;padding:8px 20px;font-size:0.82rem" onclick="cancelWaiting()">Annulla</button>
+            </div>
+        </div>
+
+        <!-- Token result -->
+        <div id="tokenResult">
+            <div class="token-success">
+                <div class="success-label">✓ Pagamento confermato</div>
+                <div class="success-title">Il tuo token premium</div>
+                <div class="token-display" id="tokenDisplayValue" title="Clicca per copiare" onclick="copyToken()">—</div>
+                <div class="token-meta">
+                    <span style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--text3)">Valido fino al</span>
+                    <span class="expiry-badge" id="tokenExpiry">—</span>
+                </div>
+                <div class="copy-hint" id="copyHint">Clicca il token per copiarlo</div>
+                <div class="email-note" id="emailNote">📧 Un'email con il token è stata inviata anche a <strong id="emailNoteAddr"></strong></div>
+                <a href="index.html" class="btn btn-primary" style="margin-top:4px">→ &nbsp;Vai alla mappa e sblocca</a>
+            </div>
+        </div>
     </div>
 
     <div class="divider">accesso admin</div>
@@ -275,54 +276,49 @@
     <!-- ADMIN -->
     <div class="card">
         <div class="card-label">Pannello admin</div>
-        <div class="card-title">Genera token personalizzato</div>
-        <div class="card-desc">
-            Inserisci la password admin per generare token con durata personalizzata.
-        </div>
+        <div class="card-title">Genera token manuale</div>
+        <div class="card-desc">Per generare token senza donazione (test, omaggi, ecc.).</div>
 
         <button class="accordion-trigger" id="adminTrigger" onclick="toggleAdmin()">
             <span>🔐 &nbsp;Accesso con password</span>
             <span class="arrow">▾</span>
         </button>
         <div class="accordion-body" id="adminBody">
-            <div class="field">
+            <div class="field" style="margin-bottom:14px">
                 <label for="adminPassword">Password admin</label>
                 <input type="password" id="adminPassword" placeholder="••••••••" autocomplete="off">
             </div>
-            <div class="field">
+            <div class="field" style="margin-bottom:14px">
+                <label for="adminEmail">Email destinatario (opzionale)</label>
+                <input type="email" id="adminEmail" placeholder="mario@esempio.it">
+            </div>
+            <div class="field" style="margin-bottom:16px">
                 <label for="adminDays">Durata (giorni)</label>
                 <input type="number" id="adminDays" value="30" min="1" max="365">
             </div>
             <button class="btn btn-primary" onclick="generateAdminToken()">Genera token</button>
-            <div class="result-box" id="adminResult"></div>
+            <div id="adminResult" style="margin-top:16px"></div>
         </div>
     </div>
 
-    <!-- HOW TO USE -->
     <div class="info-box">
-        <strong style="display:block;margin-bottom:10px">Come usare il token</strong>
-        <div class="info-step"><span class="step-num">1</span><span>Genera il token qui sopra e copialo</span></div>
-        <div class="info-step"><span class="step-num">2</span><span>Torna alla mappa e scarica i dati di un universo</span></div>
-        <div class="info-step"><span class="step-num">3</span><span>Clicca sul chip <strong>🔒 Slot 8 liberi</strong></span></div>
-        <div class="info-step"><span class="step-num">4</span><span>Incolla il token nel campo e clicca <strong>Sblocca</strong></span></div>
+        <strong style="display:block;margin-bottom:8px">Come usare il token ricevuto</strong>
+        Torna alla mappa, scarica i dati di un universo, poi clicca il chip <strong>🔒 Slot 8 liberi</strong> e incolla il token nel campo che appare.
     </div>
 
 </div>
 <script>
-// Token format: RAND-SIG-EXPIRY
-//   RAND   = 8 random hex chars
-//   SIG    = first 12 chars of sha256(secret + RAND + EXPIRY)
-//   EXPIRY = ms timestamp
-//
-// Verification is done server-side by /.netlify/functions/verify-token
-// TOKEN_SECRET lives only in the Netlify environment variable — never here.
+// ── CONFIG ─────────────────────────────────────────────────────────────────────
+// Set KOFI_URL to your Ko-fi page, e.g. 'https://ko-fi.com/galax95'
+const KOFI_URL = 'https://ko-fi.com/galax95';
 
-const VERIFY_URL = '/.netlify/functions/verify-token';
 // Admin password hash (sha256 of your admin password).
-// Set this before deploying:
-//   crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourPassword'))
-//     .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
-const ADMIN_PASSWORD_HASH = '4a4c78ec2c0bc754ba769820f1584979031cf4812b9aea92139a67169ce45bb0';
+// Generate: crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourPass'))
+//   .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+const ADMIN_PASSWORD_HASH = 'eefee9b01289b389917cf91b22b1254b8e06604f9c9eb382b464fdd4d4cf7e84';
+
+const POLL_INTERVAL_MS = 4000;   // check every 4 seconds
+const POLL_TIMEOUT_MS  = 600000; // stop polling after 10 minutes
 
 const $ = id => document.getElementById(id);
 
@@ -331,68 +327,129 @@ async function sha256hex(str) {
     return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2,'0')).join('');
 }
 
-function randomHex(bytes = 4) {
-    const arr = new Uint8Array(bytes);
-    crypto.getRandomValues(arr);
-    return [...arr].map(x => x.toString(16).padStart(2,'0')).join('').toUpperCase();
-}
-
 function formatDate(ts) {
     return new Date(ts).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric' });
 }
 
-// Generate token by asking the server to sign it
-async function requestToken(days) {
-    const rand   = randomHex(4);                              // 8 chars
-    const expiry = Date.now() + days * 86400000;
+// ── DONATION FLOW ──────────────────────────────────────────────────────────────
+let pollTimer = null;
+let pollStart = null;
+let currentEmail = null;
+let pollSessionId = null;
 
-    // Ask the Netlify Function to sign the token
-    const res = await fetch('/.netlify/functions/generate-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rand, expiry })
+function startDonation() {
+    const email = $('donorEmail').value.trim();
+    if (!email || !email.includes('@')) {
+        $('donorEmail').focus();
+        $('donorEmail').style.borderColor = 'var(--red)';
+        setTimeout(() => { $('donorEmail').style.borderColor = ''; }, 2000);
+        return;
+    }
+
+    currentEmail = email;
+
+    // Generate a session ID to poll for — passed to Ko-fi via URL message param
+    pollSessionId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+    // Store session in localStorage so the Netlify webhook can be matched
+    localStorage.setItem('ogame_pending_session', JSON.stringify({
+        sessionId: pollSessionId,
+        email,
+        ts: Date.now()
+    }));
+
+    // Show waiting state
+    $('emailSection').style.display = 'none';
+    $('waitingState').style.display = 'block';
+    $('waitingEmailDisplay').textContent = email;
+
+    // Open Ko-fi in new tab
+    // Ko-fi supports a 'message' param that appears as donation message
+    const kofiTarget = `${KOFI_URL}?via=ogame&ref=${pollSessionId}`;
+    window.open(kofiTarget, '_blank');
+
+    // Start polling
+    pollStart = Date.now();
+    startPolling();
+}
+
+function cancelWaiting() {
+    stopPolling();
+    localStorage.removeItem('ogame_pending_session');
+    $('waitingState').style.display = 'none';
+    $('emailSection').style.display = 'block';
+}
+
+function startPolling() {
+    pollTimer = setInterval(async () => {
+        // Timeout check
+        if (Date.now() - pollStart > POLL_TIMEOUT_MS) {
+            stopPolling();
+            $('waitingHint').textContent = 'Tempo scaduto. Se hai donato, controlla la tua email.';
+            return;
+        }
+
+        try {
+            const res = await fetch('/.netlify/functions/poll-token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId: pollSessionId, email: currentEmail })
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+
+            if (data.ready && data.token) {
+                stopPolling();
+                showTokenResult(data.token, data.expiry);
+            }
+        } catch { /* network hiccup, retry next tick */ }
+    }, POLL_INTERVAL_MS);
+}
+
+function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+function showTokenResult(token, expiry) {
+    localStorage.removeItem('ogame_pending_session');
+
+    // Mark steps as done
+    ['step1Num','step2Num','step3Num'].forEach(id => {
+        $(id).textContent = '✓';
+        $(id).classList.add('done');
     });
 
-    if (!res.ok) throw new Error('Server error: ' + res.status);
-    const data = await res.json();
-    if (!data.token) throw new Error('No token returned');
-    return { token: data.token, expiry };
+    $('waitingState').style.display = 'none';
+    $('tokenResult').style.display = 'block';
+    $('tokenDisplayValue').textContent = token;
+    $('tokenExpiry').textContent = '⏳ ' + formatDate(expiry);
+    $('emailNoteAddr').textContent = currentEmail;
+
+    // Also pre-fill token in localStorage so index.html can use it immediately
+    // (user just clicks the link button to go straight to the unlocked map)
+    fetch('/.netlify/functions/verify-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+    }).then(r => r.json()).then(v => {
+        if (v.valid) {
+            localStorage.setItem('ogame_premium_token', JSON.stringify({ token, expiry: v.expiry }));
+        }
+    }).catch(() => {});
 }
 
-function showResult(id, token, expiry) {
-    const box = $(id);
-    box.className = 'result-box success';
-    box.style.display = 'block';
-    box.innerHTML = `
-        <div class="result-label">✓ Token generato con successo</div>
-        <div class="token-display" id="${id}_tok" title="Clicca per copiare" onclick="copyToken('${id}_tok','${id}_hint')">${token}</div>
-        <div class="result-meta">
-            <span style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--text3)">Valido fino al</span>
-            <span class="expiry-badge">⏳ ${formatDate(expiry)}</span>
-        </div>
-        <div class="copy-hint" id="${id}_hint">Clicca il token per copiarlo negli appunti</div>
-    `;
-}
-
-function showError(id, msg) {
-    const box = $(id);
-    box.className = 'result-box error';
-    box.style.display = 'block';
-    box.innerHTML = `<div class="result-label">✗ Errore</div><div class="error-text">${msg}</div>`;
-}
-
-async function copyToken(tokId, hintId) {
-    const text = $(tokId).textContent;
+async function copyToken() {
+    const text = $('tokenDisplayValue').textContent;
     try {
         await navigator.clipboard.writeText(text);
-        $(hintId).textContent = '✓ Copiato negli appunti!';
-        $(hintId).className = 'copy-hint copied';
+        $('copyHint').textContent = '✓ Copiato negli appunti!';
+        $('copyHint').className = 'copy-hint copied';
         setTimeout(() => {
-            $(hintId).textContent = 'Clicca il token per copiarlo negli appunti';
-            $(hintId).className = 'copy-hint';
+            $('copyHint').textContent = 'Clicca il token per copiarlo';
+            $('copyHint').className = 'copy-hint';
         }, 2500);
     } catch {
-        const el = $(tokId);
+        const el = $('tokenDisplayValue');
         const range = document.createRange();
         range.selectNodeContents(el);
         window.getSelection().removeAllRanges();
@@ -400,55 +457,82 @@ async function copyToken(tokId, hintId) {
     }
 }
 
-// ── TRIAL ─────────────────────────────────────────────────────────────────────
-async function generateTrialToken() {
-    const btn = $('trialBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span style="opacity:.6">Generazione in corso…</span>';
-    try {
-        const { token, expiry } = await requestToken(30);
-        showResult('trialResult', token, expiry);
-    } catch(e) {
-        showError('trialResult', 'Errore durante la generazione. Riprova tra qualche secondo.');
-        console.error(e);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '⭐ &nbsp;Genera un altro token di prova';
-    }
-}
-
-// ── ADMIN ─────────────────────────────────────────────────────────────────────
+// ── ADMIN ──────────────────────────────────────────────────────────────────────
 async function generateAdminToken() {
-    const pwd  = $('adminPassword').value;
-    const days = parseInt($('adminDays').value, 10) || 30;
-    if (!pwd) { showError('adminResult', 'Inserisci la password admin.'); return; }
+    const pwd   = $('adminPassword').value;
+    const email = $('adminEmail').value.trim();
+    const days  = parseInt($('adminDays').value, 10) || 30;
+
+    if (!pwd) { showAdminResult('error', 'Inserisci la password admin.'); return; }
 
     const hash = await sha256hex(pwd);
     if (hash !== ADMIN_PASSWORD_HASH) {
-        showError('adminResult', 'Password non corretta.');
+        showAdminResult('error', 'Password non corretta.');
         return;
     }
 
     try {
-        const { token, expiry } = await requestToken(days);
-        showResult('adminResult', token, expiry);
+        const res = await fetch('/.netlify/functions/generate-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ days, email: email || null, adminGenerated: true })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.token) throw new Error('No token');
+
+        showAdminResult('success', data.token, data.expiry, email);
     } catch(e) {
-        showError('adminResult', 'Errore durante la generazione. Controlla la configurazione del server.');
+        showAdminResult('error', 'Errore server. Controlla la configurazione.');
         console.error(e);
     }
 }
 
-// ── ACCORDION ─────────────────────────────────────────────────────────────────
-function toggleAdmin() {
-    const trigger = $('adminTrigger');
-    const body    = $('adminBody');
-    trigger.classList.toggle('open');
-    body.classList.toggle('open');
+function showAdminResult(type, tokenOrMsg, expiry, email) {
+    const el = $('adminResult');
+    if (type === 'error') {
+        el.innerHTML = `<div style="background:var(--red-bg);border:1px solid rgba(224,85,85,.25);border-radius:var(--radius);padding:14px;font-size:.85rem;color:var(--red)">${tokenOrMsg}</div>`;
+        return;
+    }
+    el.innerHTML = `
+        <div style="background:var(--green-bg);border:1px solid rgba(76,175,120,.25);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:10px">
+            <div style="font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--green)">✓ Token generato</div>
+            <div class="token-display" onclick="navigator.clipboard.writeText(this.textContent)" title="Clicca per copiare" style="font-family:'DM Mono',monospace;font-size:.9rem;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 14px;cursor:pointer;word-break:break-all;color:var(--white)">${tokenOrMsg}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+                <span style="font-size:.78rem;color:var(--text3);font-family:'DM Mono',monospace">Valido fino al</span>
+                <span class="expiry-badge">⏳ ${formatDate(expiry)}</span>
+            </div>
+            ${email ? `<div style="font-size:.82rem;color:var(--text2)">📧 Email inviata a <strong>${email}</strong></div>` : '<div style="font-size:.78rem;color:var(--text3)">Nessuna email — copiare e inviare manualmente</div>'}
+            <div style="font-size:.68rem;color:var(--text3);font-family:\'DM Mono\',monospace;text-align:center">Clicca il token per copiarlo</div>
+        </div>`;
 }
 
-// Enter on password field
-$('adminPassword').addEventListener('keydown', e => {
-    if (e.key === 'Enter') generateAdminToken();
+// ── ACCORDION ─────────────────────────────────────────────────────────────────
+function toggleAdmin() {
+    $('adminTrigger').classList.toggle('open');
+    $('adminBody').classList.toggle('open');
+}
+
+// ── ENTER KEY ─────────────────────────────────────────────────────────────────
+$('donorEmail').addEventListener('keydown', e => { if (e.key === 'Enter') startDonation(); });
+$('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') generateAdminToken(); });
+
+// ── RESUME POLLING on page reload ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    const pending = localStorage.getItem('ogame_pending_session');
+    if (!pending) return;
+    try {
+        const { sessionId, email, ts } = JSON.parse(pending);
+        if (Date.now() - ts > POLL_TIMEOUT_MS) { localStorage.removeItem('ogame_pending_session'); return; }
+        currentEmail   = email;
+        pollSessionId  = sessionId;
+        $('donorEmail').value = email;
+        $('emailSection').style.display = 'none';
+        $('waitingState').style.display = 'block';
+        $('waitingEmailDisplay').textContent = email;
+        pollStart = ts;
+        startPolling();
+    } catch { localStorage.removeItem('ogame_pending_session'); }
 });
 </script>
 </body>
