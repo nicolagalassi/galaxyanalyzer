@@ -397,6 +397,136 @@
         table.dt tr:hover td { background: var(--surface2); }
         .gal-tag { font-family: 'DM Mono', monospace; font-size: .8rem; letter-spacing: 1px; color: var(--amber); }
 
+        /* ── PREMIUM CHIP ── */
+        .chip-premium {
+            cursor: pointer;
+            position: relative;
+        }
+        .chip-premium.locked {
+            color: var(--text3);
+            border-color: var(--border);
+            opacity: 0.7;
+        }
+        .chip-premium.unlocked {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: var(--amber-bg);
+        }
+        .chip-premium.active-slot {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: var(--amber-bg);
+        }
+
+        /* ── PREMIUM MODAL ── */
+        #premiumOverlay {
+            backdrop-filter: blur(4px);
+        }
+        #premiumModal {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: 32px 28px;
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.7);
+            animation: modal-in .2s ease;
+        }
+        @keyframes modal-in {
+            from { opacity:0; transform:translateY(12px) scale(.97); }
+            to   { opacity:1; transform:translateY(0) scale(1); }
+        }
+        .modal-icon { font-size: 2rem; text-align: center; }
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--white);
+            text-align: center;
+        }
+        .modal-desc {
+            font-size: 0.88rem;
+            color: var(--text2);
+            text-align: center;
+            line-height: 1.6;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.88rem;
+            letter-spacing: 1px;
+            outline: none;
+            transition: border-color .18s;
+        }
+        .modal-input:focus { border-color: var(--amber); }
+        .modal-error {
+            font-size: 0.82rem;
+            color: var(--red);
+            text-align: center;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.5px;
+        }
+        .modal-footer {
+            font-size: 0.72rem;
+            color: var(--text3);
+            text-align: center;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* ── PREMIUM CHIP ── */
+        .chip-premium { cursor: pointer; }
+        .chip-premium.locked { color: var(--text3); border-color: var(--border); opacity: 0.75; }
+        .chip-premium.unlocked { border-color: var(--amber); color: var(--amber); background: var(--amber-bg); }
+        .chip-premium.active-slot { border-color: var(--amber); color: var(--amber); background: var(--amber-bg); }
+
+        /* ── PREMIUM MODAL ── */
+        #premiumOverlay { backdrop-filter: blur(4px); }
+        #premiumModal {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: 32px 28px;
+            max-width: 400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.7);
+            animation: modal-in .2s ease;
+        }
+        @keyframes modal-in {
+            from { opacity:0; transform:translateY(12px) scale(.97); }
+            to   { opacity:1; transform:translateY(0) scale(1); }
+        }
+        .modal-icon { font-size: 2rem; text-align: center; }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--white); text-align: center; }
+        .modal-desc { font-size: 0.88rem; color: var(--text2); text-align: center; line-height: 1.6; }
+        .modal-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.88rem;
+            letter-spacing: 1px;
+            outline: none;
+            transition: border-color .18s;
+        }
+        .modal-input:focus { border-color: var(--amber); }
+        .modal-error { font-size: 0.82rem; color: var(--red); text-align: center; font-family: 'DM Mono', monospace; }
+        .modal-footer { font-size: 0.72rem; color: var(--text3); text-align: center; font-family: 'DM Mono', monospace; letter-spacing: 1px; }
+
         @media (max-width: 768px) {
             .app { padding: 0 14px 40px; }
             header { padding: 24px 0 20px; }
@@ -484,7 +614,10 @@
                 <div class="field" style="flex:0 0 auto">
                     <label>&nbsp;</label>
                     <div class="chips">
-                        <label class="chip"><input type="checkbox" id="toggleFreeSlots"> Slot 8 liberi</label>
+                        <div class="chip chip-premium" id="slotChip" onclick="handleSlotChipClick()">
+                            <span id="premiumLock">🔒</span>
+                            <span>Slot 8 liberi</span>
+                        </div>
                         <label class="chip"><input type="checkbox" id="toggleBackground" checked> Sfondo</label>
                     </div>
                 </div>
@@ -520,8 +653,27 @@
 
     <!-- FREE SLOTS -->
     <div class="card" id="freeSlotsPanel" style="display:none">
-        <div class="card-label">Slot 8 liberi per galassia</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div class="card-label" style="margin-bottom:0">Slot 8 liberi per galassia</div>
+            <button class="btn btn-ghost" onclick="revokePremium()" style="font-size:0.75rem;padding:6px 12px;color:var(--text3);border-color:var(--border)">Revoca accesso</button>
+        </div>
         <div class="slots-grid" id="freeSlotsContainer"></div>
+    </div>
+
+    <!-- PREMIUM MODAL -->
+    <div id="premiumOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;padding:20px">
+        <div id="premiumModal">
+            <div class="modal-icon">⭐</div>
+            <div class="modal-title">Funzione Premium</div>
+            <div class="modal-desc">Questa funzione è disponibile per i sostenitori del progetto.<br>Inserisci il token ricevuto dopo la donazione per sbloccarla.</div>
+            <input type="text" id="tokenInput" class="modal-input" placeholder="Incolla il tuo token qui…" autocomplete="off" spellcheck="false">
+            <div id="tokenError" class="modal-error" style="display:none">Token non valido o scaduto.</div>
+            <div style="display:flex;gap:10px">
+                <button class="btn btn-ghost" style="flex:1" onclick="closePremiumModal()">Annulla</button>
+                <button class="btn btn-primary" style="flex:2" onclick="submitToken()">Sblocca</button>
+            </div>
+            <div class="modal-footer">Il token ha validità 30 giorni dal primo utilizzo.</div>
+        </div>
     </div>
 
 </div>
@@ -641,10 +793,12 @@ $('loadBtn').addEventListener('click', async () => {
         renderHighlights();
         renderAllianceSummaries();
 
-        if ($('toggleFreeSlots').checked) {
+        // Premium slot panel: restore if still unlocked
+        if (isPremiumActive() && slotPanelVisible) {
             $('freeSlotsPanel').style.display = 'block';
             generateFreeSlots();
         }
+        updateSlotChip();
 
         setProgress(100, 'Completato');
         setTimeout(() => { $('progressWrap').style.display = 'none'; }, 1400);
@@ -865,14 +1019,93 @@ function generateFreeSlots() {
     $('freeSlotsContainer').innerHTML = html;
 }
 
-$('toggleFreeSlots').addEventListener('change', e => {
-    if (e.target.checked && allPlanetsList.length) {
+// ─── PREMIUM / TOKEN SYSTEM ────────────────────────────────────────────────────
+// To generate a valid token hash, run in browser console:
+//   crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR_SECRET_TOKEN'))
+//     .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+// Then paste the resulting hex string below.
+const VALID_TOKEN_HASH = 'REPLACE_WITH_YOUR_SHA256_HASH_HERE';
+const PREMIUM_LS_KEY   = 'ogame_premium_expiry';
+const PREMIUM_DAYS     = 30;
+
+let slotPanelVisible = false;
+
+async function sha256hex(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str.trim()));
+    return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+function isPremiumActive() {
+    const e = localStorage.getItem(PREMIUM_LS_KEY);
+    return e ? Date.now() < parseInt(e, 10) : false;
+}
+function activatePremium() {
+    localStorage.setItem(PREMIUM_LS_KEY, (Date.now() + PREMIUM_DAYS*86400000).toString());
+}
+function getPremiumExpiryLabel() {
+    const e = localStorage.getItem(PREMIUM_LS_KEY);
+    if (!e) return '';
+    return new Date(parseInt(e,10)).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function updateSlotChip() {
+    const chip = $('slotChip'), lock = $('premiumLock');
+    if (isPremiumActive()) {
+        chip.classList.remove('locked');
+        chip.classList.toggle('active-slot', slotPanelVisible);
+        chip.classList.toggle('unlocked', !slotPanelVisible);
+        lock.textContent = '⭐';
+    } else {
+        chip.className = chip.className.replace(/unlocked|active-slot/g,'').trim();
+        chip.classList.add('chip','chip-premium','locked');
+        lock.textContent = '🔒';
+    }
+}
+function handleSlotChipClick() {
+    if (!isPremiumActive()) { openPremiumModal(); return; }
+    slotPanelVisible = !slotPanelVisible;
+    if (slotPanelVisible && allPlanetsList.length) {
         $('freeSlotsPanel').style.display = 'block';
         generateFreeSlots();
     } else {
         $('freeSlotsPanel').style.display = 'none';
     }
+    updateSlotChip();
+}
+function openPremiumModal() {
+    $('tokenInput').value = '';
+    $('tokenError').style.display = 'none';
+    $('premiumOverlay').style.display = 'flex';
+    setTimeout(() => { $('tokenInput').focus(); }, 80);
+}
+function closePremiumModal() { $('premiumOverlay').style.display = 'none'; }
+async function submitToken() {
+    const val = $('tokenInput').value.trim();
+    if (!val) return;
+    const hash = await sha256hex(val);
+    if (hash === VALID_TOKEN_HASH) {
+        activatePremium();
+        closePremiumModal();
+        slotPanelVisible = true;
+        if (allPlanetsList.length) { $('freeSlotsPanel').style.display='block'; generateFreeSlots(); }
+        updateSlotChip();
+        alert('\u2705 Accesso premium attivato fino al ' + getPremiumExpiryLabel());
+    } else {
+        $('tokenError').style.display = 'block';
+        $('tokenInput').select();
+    }
+}
+function revokePremium() {
+    if (!confirm('Revocare l\'accesso premium?')) return;
+    localStorage.removeItem(PREMIUM_LS_KEY);
+    slotPanelVisible = false;
+    $('freeSlotsPanel').style.display = 'none';
+    updateSlotChip();
+}
+$('premiumOverlay').addEventListener('click', e => { if (e.target===$('premiumOverlay')) closePremiumModal(); });
+document.addEventListener('keydown', e => {
+    if (e.key==='Escape') closePremiumModal();
+    if (e.key==='Enter' && $('premiumOverlay').style.display==='flex') submitToken();
 });
+window.addEventListener('DOMContentLoaded', updateSlotChip);
 
 // ─── ALLIANCE COMPARISON ───────────────────────────────────────────────────────
 function renderAllianceSummaries() {
